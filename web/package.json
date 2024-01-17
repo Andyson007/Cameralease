@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "dev": "tsc src/main.ts"
+  },
+  "dependencies": {
+    "typescript": "^5.3.3"
+  }
+}
