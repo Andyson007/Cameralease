@@ -21,16 +21,23 @@ html, body {
 
 .cameracard {
   display: flex;
-  flex-direction: row;
-  gap: 8px;
-  padding: 8px;
+  flex-direction: column;
   background-color: #ffffff;
   box-shadow: 0px 8px 16px -4px #000000;
 
   border-left: 6px solid;
-  cursor: pointer;
 
   translate: 0px 0px;
+
+  transition: height .25s ease;
+
+  & .notdropdown {
+    display: flex;
+    flex-direction: row;
+    padding: 8px;
+    gap: 8px;
+    cursor: pointer;
+  }
 
   &:active {
     translate: 0px 4px;
