@@ -3,15 +3,11 @@ extern crate rocket;
 
 use std::path::{Path, PathBuf};
 
-use rocket::{
-    fairing::{self, AdHoc},
-    {
-        fs::{relative, NamedFile},
-        response::status::Created,
-        serde::{json::Json, Deserialize, Serialize},
-        {futures, Build, Rocket},
-    },
-};
+use rocket::fairing::{self, AdHoc};
+use rocket::fs::{relative, NamedFile};
+use rocket::response::status::Created;
+use rocket::serde::{json::Json, Deserialize, Serialize};
+use rocket::{futures, Build, Rocket};
 
 use rocket_db_pools::{sqlx, Connection, Database};
 
@@ -92,7 +88,7 @@ async fn destroy(mut db: Connection<Db>) -> Result<()> {
 
 async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
     match Db::fetch(&rocket) {
-        Some(db) => match sqlx::migrate!("db/sqlx/migrations").run(&**db).await {
+        Some(db) => match sqlx::migrate!("db/migrations").run(&**db).await {
             Ok(_) => Ok(rocket),
             Err(e) => {
                 error!("Failed to initialize SQLx database: {}", e);
