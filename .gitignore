@@ -1,1 +1,3 @@
 node_modules/
+server/target
+server/.sqlx
