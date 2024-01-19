@@ -3,14 +3,15 @@ extern crate rocket;
 
 use std::path::{Path, PathBuf};
 
-use rocket::fairing::{self, AdHoc};
-use rocket::fs::{relative, NamedFile};
-use rocket::response::status::Created;
-use rocket::serde::{json::Json, Deserialize, Serialize};
-use rocket::{futures, Build, Rocket};
+use rocket::{
+    fairing::{self, AdHoc},
+    fs::{relative, NamedFile},
+    response::status::Created,
+    serde::{json::Json, Deserialize, Serialize},
+    {Build, Rocket},
+};
 
 use rocket_db_pools::{sqlx, Connection, Database};
-
 use futures::{future::TryFutureExt, stream::TryStreamExt};
 
 #[derive(Database)]
@@ -26,15 +27,16 @@ struct Post {
     id: Option<i64>,
     title: String,
     text: String,
+    test: String,
 }
 
 #[post("/", data = "<post>")]
 async fn create(mut db: Connection<Db>, mut post: Json<Post>) -> Result<Created<Json<Post>>> {
-    // NOTE: sqlx#2543, sqlx#1648 mean we can't use the pithier `fetch_one()`.
     let results = sqlx::query!(
-        "INSERT INTO posts (title, text) VALUES (?, ?) RETURNING id",
+        "INSERT INTO posts (title, text, test) VALUES (?, ?, ?) RETURNING id",
         post.title,
-        post.text
+        post.text,
+        post.test
     )
     .fetch(&mut **db)
     .try_collect::<Vec<_>>()
@@ -57,13 +59,14 @@ async fn list(mut db: Connection<Db>) -> Result<Json<Vec<i64>>> {
 
 #[get("/<id>")]
 async fn read(mut db: Connection<Db>, id: i64) -> Option<Json<Post>> {
-    sqlx::query!("SELECT id, title, text FROM posts WHERE id = ?", id)
+    sqlx::query!("SELECT id, title, text, test FROM posts WHERE id = ?", id)
         .fetch_one(&mut **db)
         .map_ok(|r| {
             Json(Post {
                 id: Some(r.id),
                 title: r.title,
                 text: r.text,
+                test: r.test,
             })
         })
         .await

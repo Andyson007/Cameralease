@@ -6,6 +6,7 @@ publish = false
 
 [dependencies]
 rocket = {  features = ["json"] }
+futures = "0.3.30"
 
 [dependencies.sqlx]
 version = "0.7.0"
