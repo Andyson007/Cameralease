@@ -48,6 +48,24 @@
     flex-direction: column;
     gap: 8px;
 
+    .timeline {
+      height: 12px;
+      border-radius: 4px;
+      background-color: #dfdfdf;
+      
+      .innertimeline {
+        color: #ef4f4f;
+      }
+
+      .currenttime {
+        display: block;
+        color: #000000;
+
+        width: 2px;
+        height: 100%;
+      }
+    }
+
     .dropdownbtn {
       color: #ffffff;
       border-radius: 3px;
@@ -65,13 +83,8 @@
     }
   }
 
-  &.available {
-    border-color: #5fef5f;
-  }
-  &.unavailable {
-    border-color: #ef4f4f;
-  }
-  &.reserved {
-    border-color: #efef4f;
-  }
+  &.available { border-color: #5fef5f; }
+  &.unavailable { border-color: #ef4f4f; }
+  &.reserved { border-color: #efef4f; }
+  &.loading { border-color: #cacaca; }
 }
