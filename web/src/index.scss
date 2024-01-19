@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&display=swap');
+
+* {
+  font-family: 'Roboto Mono', monospace;
+}
+
+html, body {
+  margin: 0px;
+  height: 100%;
+  width: 100%;
+  background-color: #efefef;
+}
+
+#cameralist {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: #efefef;
+
+  max-width: 500px;
+}
