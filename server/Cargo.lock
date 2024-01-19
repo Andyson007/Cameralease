@@ -281,6 +281,7 @@ dependencies = [
  "futures",
  "rocket",
  "rocket_db_pools",
+ "serde_json",
  "sqlx",
 ]
 

@@ -1,12 +1,13 @@
 [package]
-name = "databases"
-version = "0.0.0"
+name = "cameralease"
+version = "0.0.1"
 edition = "2021"
 publish = false
 
 [dependencies]
 rocket = {  features = ["json"] }
 futures = "0.3.30"
+serde_json = "1.0.111"
 
 [dependencies.sqlx]
 version = "0.7.0"
