@@ -1,2 +1,4 @@
 node_modules/
+web/src/main.js
 server/target
+server/db/db.sqlite

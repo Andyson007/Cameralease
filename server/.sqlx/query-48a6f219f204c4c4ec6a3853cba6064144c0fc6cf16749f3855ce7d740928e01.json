@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT id, title, text, test FROM posts WHERE id = ?",
+  "query": "SELECT id, camid, starttime, endtime, name FROM posts WHERE id = ?",
   "describe": {
     "columns": [
       {
@@ -9,18 +9,23 @@
         "type_info": "Int64"
       },
       {
-        "name": "title",
+        "name": "camid",
         "ordinal": 1,
-        "type_info": "Text"
+        "type_info": "Int64"
       },
       {
-        "name": "text",
+        "name": "starttime",
         "ordinal": 2,
         "type_info": "Text"
       },
       {
-        "name": "test",
+        "name": "endtime",
         "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "name",
+        "ordinal": 4,
         "type_info": "Text"
       }
     ],
@@ -30,9 +35,10 @@
     "nullable": [
       false,
       false,
-      false,
-      false
+      true,
+      true,
+      true
     ]
   },
-  "hash": "9b9bb3b01fcbc1442ec5fd349f7123215da5dc630a58a87ef21547c74dc65ffa"
+  "hash": "48a6f219f204c4c4ec6a3853cba6064144c0fc6cf16749f3855ce7d740928e01"
 }

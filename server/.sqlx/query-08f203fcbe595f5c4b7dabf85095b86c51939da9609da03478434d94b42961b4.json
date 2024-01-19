@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "INSERT INTO posts (title, text, test) VALUES (?, ?, ?) RETURNING id",
+  "query": "INSERT INTO posts (camid, starttime, endtime, name) VALUES (?, ?, ?, ?) RETURNING id",
   "describe": {
     "columns": [
       {
@@ -10,11 +10,11 @@
       }
     ],
     "parameters": {
-      "Right": 3
+      "Right": 4
     },
     "nullable": [
       false
     ]
   },
-  "hash": "f30ca23415cfb33deaf494d88346994400913ea8231b340efd3f06acc4e89737"
+  "hash": "08f203fcbe595f5c4b7dabf85095b86c51939da9609da03478434d94b42961b4"
 }
