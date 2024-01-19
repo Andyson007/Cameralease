@@ -113,7 +113,7 @@ pub fn stage() -> AdHoc {
 
 #[get("/<path..>", rank = 1)]
 pub async fn files(path: PathBuf) -> Option<NamedFile> {
-    let mut path = Path::new(relative!("../web")).join(path);
+    let mut path = Path::new(relative!("../web/build")).join(path);
     if path.is_dir() {
         path.push("index.html");
     }
