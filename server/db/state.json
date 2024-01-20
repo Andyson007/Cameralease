@@ -1,16 +1,35 @@
 {
-  "cameras" : [ 
+  "cameras": [
     {
-      "name" : "Name_samp0",
-      "model" : "model_samp0",
-      "uid" : "uid_samp0",
-      "starttime" : 123123123,
-      "user" : "Andy0"
+      "model": "model_samp0",
+      "name": "Name_samp0",
+      "reservations": [],
+      "starttime": 12312313,
+      "uid": 0,
+      "user": "Andy0"
     },
     {
-      "name" : "Name_sample1",
-      "model" : "model_sample1",
-      "uid" : "uid_sample1"
+      "model": "model_sample1",
+      "name": "Name_sample1",
+      "reservations": [
+        [
+          5,
+          7
+        ],
+        [
+          3,
+          75
+        ]
+      ],
+      "uid": 1
+    },
+    {
+      "model": "model_sample2",
+      "name": "Name_sample2",
+      "reservations": [],
+      "starttime": 20244202,
+      "uid": 2,
+      "user": "Andy2"
     }
   ]
 }
