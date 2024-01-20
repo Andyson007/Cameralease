@@ -119,7 +119,7 @@ async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
     }
 }
 
-#[post("/cams")]
+#[get("/cams")]
 async fn cams() -> Result<Json<Vec<Camera>>> {
     let val = CAMERAS.lock().unwrap();
     Ok(Json(val.to_vec()))
