@@ -225,7 +225,7 @@ async fn lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<Status> {
 async fn files(path: PathBuf) -> Option<NamedFile> {
     let mut path = Path::new(relative!("../web/build")).join(path);
     if path.is_dir() {
-        path.push("indet.html");
+        path.push("index.html");
     }
     NamedFile::open(path).await.ok()
 }
