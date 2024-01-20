@@ -40,12 +40,32 @@ struct Entry {
 }
 
 #[derive(Debug, Clone)]
+struct Reservation {
+    start: u32,
+    end: u32,
+    user: String,
+}
+
+#[derive(Debug, Clone)]
 struct Camera {
     name: String,
     model: String,
     uid: u32,
     distribution: Option<(u32, String)>,
-    reservations: Vec<(u32, u32)>,
+    reservations: Vec<Reservation>,
+}
+
+impl rocket::serde::ser::Serialize for Reservation {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: rocket::serde::ser::Serializer,
+    {
+        let mut state = serializer.serialize_struct("Reservation", 3)?;
+        state.serialize_field("start", &self.start)?;
+        state.serialize_field("end", &self.end)?;
+        state.serialize_field("user", &self.user)?;
+        state.end()
+    }
 }
 
 impl rocket::serde::ser::Serialize for Camera {
@@ -83,7 +103,6 @@ async fn list(mut db: Connection<Db>) -> Result<Json<Vec<i64>>> {
         .map_ok(|record| record.id)
         .try_collect::<Vec<_>>()
         .await?;
-
     Ok(Json(ids))
 }
 
@@ -108,6 +127,53 @@ async fn cams() -> Result<Json<Vec<Camera>>> {
 
 #[derive(Debug, Deserialize)]
 #[serde(crate = "rocket::serde")]
+struct ReservationInput {
+    start: u32,
+    end: u32,
+    uid: usize,
+    user: String,
+}
+
+#[derive(Responder)]
+enum Response {
+    #[response(status = 400, content_type = "text")]
+    Invalid(String),
+    #[response(status = 202, content_type = "json")]
+    Valid(Json<Camera>),
+}
+
+#[post("/reserve", data = "<data>")]
+async fn reserve(data: Json<ReservationInput>) -> Result<Response> {
+    let mut val = CAMERAS.lock().unwrap();
+    let camera = match val.get_mut(data.uid) {
+        None => return Ok(Response::Invalid(String::from("Not valid uid"))),
+        Some(x) => x,
+    };
+    if camera.reservations.iter().any(
+        |Reservation {
+             start,
+             end,
+             user: _,
+         }| {
+            (data.start <= *start && *start < data.end)
+                || (data.start < *end && *end < data.end)
+                || (*start < data.start && data.start < *end)
+        },
+    ) {
+        return Ok(Response::Invalid(String::from(
+            "Reservation already present",
+        )));
+    }
+    camera.reservations.push(Reservation {
+        start: data.start,
+        end: data.end,
+        user: data.user.clone(),
+    });
+    Ok(Response::Valid(Json(camera.clone())))
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(crate = "rocket::serde")]
 struct Lease {
     start: u32,
     end: Option<u32>,
@@ -115,6 +181,8 @@ struct Lease {
     user: String,
 }
 
+/// This function will return an error(400) if the lease request starts
+/// a lease that has already been started
 #[post("/lease", data = "<data>")]
 async fn lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<Status> {
     match data.end {
@@ -122,23 +190,18 @@ async fn lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<Status> {
             {
                 let mut val = CAMERAS.lock().unwrap();
                 let camera = match val.get_mut(data.uid) {
-                    None => {
-                        return Ok(Status::BadRequest);
-                    }
+                    None => return Ok(Status::BadRequest),
                     Some(x) => x,
                 };
-                if (*camera).distribution.is_none() {
-                    return Ok(Status::BadRequest);
-                }
                 camera.distribution = None;
             }
             let uid = data.uid as u32;
             sqlx::query!(
-        "INSERT INTO posts (camid, starttime, endtime, name) VALUES (?, ?, ?, ?) RETURNING id",
-        uid,
-        data.start,
-        end,
-        data.user)
+                "INSERT INTO posts (camid, starttime, endtime, name) VALUES (?, ?, ?, ?) RETURNING id",
+                uid,
+                data.start,
+                end,
+                data.user)
             .fetch(&mut **db)
             .try_collect::<Vec<_>>()
             .await?;
@@ -146,9 +209,7 @@ async fn lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<Status> {
         None => {
             let mut val = CAMERAS.lock().unwrap();
             let camera = match val.get_mut(data.uid) {
-                None => {
-                    return Ok(Status::BadRequest);
-                }
+                None => return Ok(Status::BadRequest),
                 Some(x) => x,
             };
             if (*camera).distribution.is_some() {
@@ -167,6 +228,33 @@ async fn files(path: PathBuf) -> Option<NamedFile> {
         path.push("indet.html");
     }
     NamedFile::open(path).await.ok()
+}
+
+#[get("/history")]
+async fn history(mut db: Connection<Db>) -> Option<Json<Vec<Entry>>> {
+    sqlx::query!("SELECT id, camid, starttime, endtime, name FROM posts")
+        .fetch_all(&mut **db)
+        .map_ok(|v| {
+            Json(
+                v.iter()
+                    .map(|r| Entry {
+                        id: Some(r.id),
+                        camid: r.camid,
+                        starttime: match &r.starttime {
+                            Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                            None => None,
+                        },
+                        endtime: match &r.endtime {
+                            Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                            None => None,
+                        },
+                        name: r.name.clone(),
+                    })
+                    .collect::<Vec<Entry>>(),
+            )
+        })
+        .await
+        .ok()
 }
 
 #[get("/<id>")]
@@ -201,7 +289,8 @@ async fn read(mut db: Connection<Db>, id: i64) -> Option<Json<Entry>> {
 
 #[rocket::main]
 async fn main() {
-    let json: serde_json::Value = match fs::File::open("db/state.json") {
+    let state_file = "db/state.json";
+    let json: serde_json::Value = match fs::File::open(state_file) {
         Ok(x) => serde_json::from_reader(x).unwrap(),
         Err(_) => unimplemented!(),
     };
@@ -210,7 +299,7 @@ async fn main() {
 
         *val = json
             .get("cameras")
-            .unwrap()
+            .expect(format!("No field cameras in {state_file}").as_str())
             .as_array()
             .unwrap()
             .iter()
@@ -244,19 +333,32 @@ async fn main() {
                         .expect("reservations isn't an array")
                         .iter()
                         .map(|x| {
-                            let arr = x
-                                .as_array()
-                                .unwrap()
-                                .iter()
-                                .map(|x| x.as_u64().expect("Non u64 in reservations") as u32)
-                                .collect::<Vec<u32>>();
-                            (arr[0], arr[1])
+                            let obj = x.as_object().expect("reservation not object");
+                            Reservation {
+                                start: obj
+                                    .get("start")
+                                    .expect("no start field in reservation")
+                                    .as_u64()
+                                    .expect("start in reservation not u64")
+                                    as u32,
+                                end: obj
+                                    .get("end")
+                                    .expect("no end field in reservation")
+                                    .as_u64()
+                                    .expect("end in reservation not u64")
+                                    as u32,
+                                user: obj
+                                    .get("user")
+                                    .expect("no user field in reservation")
+                                    .as_str()
+                                    .expect("user filed not str")
+                                    .to_string(),
+                            }
                         })
                         .collect(),
                 }
             })
             .collect::<Vec<Camera>>();
-        println!("{val:#?}");
     }
     let _result = rocket::build()
         .mount("/", routes![files])
@@ -267,7 +369,7 @@ async fn main() {
         OpenOptions::new()
             .write(true)
             .truncate(true)
-            .open("db/state.json")
+            .open(state_file)
             .unwrap(),
     );
     let val = CAMERAS.lock().unwrap();
@@ -286,7 +388,7 @@ pub fn stage() -> AdHoc {
         rocket
             .attach(Db::init())
             .attach(AdHoc::try_on_ignite("SQLx Migrations", run_migrations))
-            .mount("/api", routes![cams, lease])
+            .mount("/api", routes![cams, lease, history, reserve])
             .mount("/api", routes![list, read])
     })
 }
