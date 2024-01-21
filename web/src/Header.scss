@@ -1,0 +1,22 @@
+header {
+  
+  padding: .5rem;
+  display: flex;
+  flex-direction: row;
+  gap: .5rem;
+  align-items: center;
+  
+  svg {
+    min-width: 100px;
+    width: 100px;
+    height: 100px;
+
+
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin: 0px;
+  }
+}
+

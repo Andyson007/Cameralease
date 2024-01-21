@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="512"
+   height="512"
+   viewBox="0 0 512 512"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <g
+     id="layer1">
+    <path
+       style="opacity:1;fill:#f4edf7;fill-opacity:0;stroke:#1ca0b4;stroke-width:16;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 128,328.02823 V 203.67281 A 11.672806,11.672806 135 0 1 139.67281,192 h 46.88571 a 13.136893,13.136893 157.5 0 0 9.28919,-3.84771 l 13.55764,-13.55764 A 22.515542,22.515542 157.5 0 1 225.32624,168 h 61.34752 a 22.515542,22.515542 22.5 0 1 15.92089,6.59465 l 13.55764,13.55764 A 13.136893,13.136893 22.5 0 0 325.44148,192 h 46.88571 A 11.672806,11.672806 45 0 1 384,203.67281 v 124.35542 a 11.672806,11.672806 135 0 1 -11.67281,11.67281 l -232.65438,0 A 11.672806,11.672806 45 0 1 128,328.02823 Z"
+       id="path1"
+       transform="translate(16,18.149456)" />
+    <ellipse
+       style="opacity:1;fill:#f4edf7;fill-opacity:0;stroke:#1ca0b4;stroke-width:16;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path2"
+       cx="272"
+       cy="283.85049"
+       rx="47.151634"
+       ry="47.151638" />
+  </g>
+  <g
+     id="g3">
+    <path
+       style="opacity:1;fill:#f4edf7;fill-opacity:0;stroke:#1ca0b4;stroke-width:16;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 160,339.701 -13.92396,2e-5 A 18.076014,18.076014 44.999964 0 1 128,321.625 V 210.07604 A 18.076037,18.076037 135 0 1 146.07604,192 h 38.05152 a 19.005763,19.005763 157.5 0 0 13.4391,-5.56666 l 12.86668,-12.86668 A 19.005763,19.005763 157.5 0 1 223.87244,168 h 64.25512 a 19.005763,19.005763 22.5 0 1 13.4391,5.56666 l 12.86668,12.86668 A 19.005763,19.005763 22.5 0 0 327.87244,192 h 38.05152 A 18.076037,18.076037 45 0 1 384,210.07604 V 224.151"
+       id="path3"
+       transform="translate(-16,-13.850502)" />
+  </g>
+</svg>

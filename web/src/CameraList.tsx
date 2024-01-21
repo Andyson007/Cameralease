@@ -16,17 +16,18 @@ var cameras = [
   },
 ];
 
-export default function CameraList () {
-  const [cams, setCams] = useState<{name: string, model: string, uid: string | number}[]>([{name: "Loading...", model: "N/A", uid: "ffff"}]);
+export type camsType = {name: string, model: string, uid: string | number, reservations: {}[], starttime : number | undefined, user: string | undefined}
+
+export function CameraList () {
+  const [cams, setCams] = useState<camsType[]>([{name: "Loading...", model: "N/A", uid: "ffff", reservations: [], starttime: undefined, user: undefined}]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<number>(0);
   
-  
   useEffect(() => {
     setLoading(false);
-    return;
+    // return;
     if (!loading) return;
-    fetch("/api/fetch").then(resp => {
+    fetch("/api/cams").then(resp => {
       if (!resp.ok) {
         setError(resp.status);
         return;
@@ -34,7 +35,13 @@ export default function CameraList () {
       return resp.text().then(t => 
         {
           try {
-            setCams(JSON.parse(t)['cameras']);
+            let parsed = JSON.parse(t);
+            
+            console.log(parsed);
+            if (!(parsed instanceof Array)) setError(500);
+
+            setCams(parsed);
+
             setLoading(false);
             console.log(cams);
             console.log(JSON.parse(t));
@@ -51,9 +58,9 @@ export default function CameraList () {
 
   return (
     <div id="cameralist">
-      {error === 0 ? (loading ? "Loading..." : cameras.map(f => {
-          return (<CameraCard name={f.name} model={f.model} uid={f.uid.toString()}></CameraCard>)
-        })) : `error: ${error}`}
+      {/*error === 0 ? */ (loading ? "Loading..." : cams.map(f => {
+          return (<CameraCard key={f.uid} name={f.name} model={f.model} uid={f.uid.toString()} camobj={f}></CameraCard>)
+        })) /*: `error: ${error}`*/}
     </div>
   );
 }

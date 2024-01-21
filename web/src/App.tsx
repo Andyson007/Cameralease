@@ -1,9 +1,13 @@
 import React from 'react';
-import CameraList from './CameraList';
+import { CameraList } from './CameraList';
+import Header from "./Header";
 
 function App() {
   return (
-    <CameraList></CameraList>
+    <div>
+      <Header></Header>
+      <CameraList></CameraList>
+    </div>
   );
 }
 
