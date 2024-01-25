@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT id, camid, starttime, endtime, name FROM posts WHERE id = ?",
+  "query": "SELECT id, camid, starttime, endtime, name FROM posts WHERE name LIKE ?",
   "describe": {
     "columns": [
       {
@@ -40,5 +40,5 @@
       true
     ]
   },
-  "hash": "48a6f219f204c4c4ec6a3853cba6064144c0fc6cf16749f3855ce7d740928e01"
+  "hash": "aad16c07f7ba3c9da7980c6d40cb7abb13c29fc33f4a97ca2978fb13aa12e6a5"
 }

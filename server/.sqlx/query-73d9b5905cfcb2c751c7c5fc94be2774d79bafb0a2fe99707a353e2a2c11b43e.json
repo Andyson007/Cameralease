@@ -1,0 +1,44 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id, camid, starttime, endtime, name FROM posts WHERE camid = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "camid",
+        "ordinal": 1,
+        "type_info": "Int64"
+      },
+      {
+        "name": "starttime",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "endtime",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "name",
+        "ordinal": 4,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "73d9b5905cfcb2c751c7c5fc94be2774d79bafb0a2fe99707a353e2a2c11b43e"
+}

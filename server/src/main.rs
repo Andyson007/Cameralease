@@ -96,16 +96,6 @@ impl rocket::serde::ser::Serialize for Camera {
     }
 }
 
-#[get("/")]
-async fn list(mut db: Connection<Db>) -> Result<Json<Vec<i64>>> {
-    let ids = sqlx::query!("SELECT id FROM posts")
-        .fetch(&mut **db)
-        .map_ok(|record| record.id)
-        .try_collect::<Vec<_>>()
-        .await?;
-    Ok(Json(ids))
-}
-
 async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
     match Db::fetch(&rocket) {
         Some(db) => match sqlx::migrate!("db/migrations").run(&**db).await {
@@ -161,7 +151,7 @@ async fn reserve(data: Json<ReservationInput>) -> Result<Response> {
         },
     ) {
         return Ok(Response::Invalid(String::from(
-            "Reservation already present",
+            "Reservaton in time frame already present",
         )));
     }
     camera.reservations.push(Reservation {
@@ -221,7 +211,7 @@ async fn lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<Status> {
     Ok(Status::Accepted)
 }
 
-#[get("/<path..>", rank = 1)]
+#[get("/<path..>", rank = 13)]
 async fn files(path: PathBuf) -> Option<NamedFile> {
     let mut path = Path::new(relative!("../web/build")).join(path);
     if path.is_dir() {
@@ -257,34 +247,109 @@ async fn history(mut db: Connection<Db>) -> Option<Json<Vec<Entry>>> {
         .ok()
 }
 
-#[get("/<id>")]
-async fn read(mut db: Connection<Db>, id: i64) -> Option<Json<Entry>> {
+#[get("/<name>", rank = 2)]
+async fn get_name(mut db: Connection<Db>, name: &str) -> Option<Json<Vec<Entry>>> {
     sqlx::query!(
-        "SELECT id, camid, starttime, endtime, name FROM posts WHERE id = ?",
-        id
+        "SELECT id, camid, starttime, endtime, name FROM posts WHERE name LIKE ?",
+        name
     )
-    .fetch_one(&mut **db)
-    .map_ok(|r| {
-        Json(Entry {
-            id: Some(r.id),
-            camid: r.camid,
-            starttime: Some(
-                r.starttime
-                    .unwrap()
-                    .parse::<u32>()
-                    .expect("strattime isn't a u32"),
-            ),
-            endtime: Some(
-                r.endtime
-                    .unwrap()
-                    .parse::<u32>()
-                    .expect("strattime isn't a u32"),
-            ),
-            name: r.name,
-        })
+    .fetch_all(&mut **db)
+    .map_ok(|v| {
+        Json(
+            v.iter()
+                .map(|r| Entry {
+                    id: Some(r.id),
+                    camid: r.camid,
+                    starttime: match &r.starttime {
+                        Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                        None => None,
+                    },
+                    endtime: match &r.endtime {
+                        Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                        None => None,
+                    },
+                    name: r.name.clone(),
+                })
+                .collect::<Vec<Entry>>(),
+        )
     })
     .await
     .ok()
+}
+
+#[get("/<camid>", rank = 1)]
+async fn get_camid(mut db: Connection<Db>, camid: i64) -> Option<Json<Vec<Entry>>> {
+    sqlx::query!(
+        "SELECT id, camid, starttime, endtime, name FROM posts WHERE camid = ?",
+        camid
+    )
+    .fetch_all(&mut **db)
+    .map_ok(|v| {
+        Json(
+            v.iter()
+                .map(|r| Entry {
+                    id: Some(r.id),
+                    camid: r.camid,
+                    starttime: match &r.starttime {
+                        Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                        None => None,
+                    },
+                    endtime: match &r.endtime {
+                        Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                        None => None,
+                    },
+                    name: r.name.clone(),
+                })
+                .collect::<Vec<Entry>>(),
+        )
+    })
+    .await
+    .ok()
+}
+
+#[get("/date/<date>")]
+async fn get_date(mut db: Connection<Db>, date: &str) -> Option<Json<Vec<Entry>>> {
+    sqlx::query!(
+        "SELECT id, camid, starttime, endtime, name FROM posts WHERE date(datetime(starttime, 'unixepoch')) = ?",
+        date
+    )
+    .fetch_all(&mut **db)
+    .map_ok(|v| {
+        Json(
+            v.iter()
+                .map(|r| Entry {
+                    id: Some(r.id),
+                    camid: r.camid,
+                    starttime: match &r.starttime {
+                        Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                        None => None,
+                    },
+                    endtime: match &r.endtime {
+                        Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                        None => None,
+                    },
+                    name: r.name.clone(),
+                })
+                .collect::<Vec<Entry>>(),
+        )
+    })
+    .await
+    .ok()
+}
+
+#[get("/date")]
+async fn dates(mut db: Connection<Db>) -> Option<Json<Vec<String>>> {
+    sqlx::query!("SELECT DISTINCT date(datetime(starttime, 'unixepoch')) AS date FROM posts ORDER BY date DESC")
+        .fetch_all(&mut **db)
+        .map_ok(|v| {
+            Json(
+                v.iter()
+                    .map(|r| r.date.clone().unwrap())
+                    .collect::<Vec<String>>(),
+            )
+        })
+        .await
+        .ok()
 }
 
 #[rocket::main]
@@ -292,7 +357,10 @@ async fn main() {
     let state_file = "db/state.json";
     let json: serde_json::Value = match fs::File::open(state_file) {
         Ok(x) => serde_json::from_reader(x).unwrap(),
-        Err(_) => unimplemented!(),
+        Err(x) => {
+            println!("{x:?}");
+            panic!();
+        }
     };
     {
         let mut val = CAMERAS.lock().unwrap();
@@ -388,7 +456,9 @@ pub fn stage() -> AdHoc {
         rocket
             .attach(Db::init())
             .attach(AdHoc::try_on_ignite("SQLx Migrations", run_migrations))
-            .mount("/api", routes![cams, lease, history, reserve])
-            .mount("/api", routes![list, read])
+            .mount(
+                "/api",
+                routes![cams, lease, history, reserve, get_name, get_camid, dates, get_date],
+            )
     })
 }

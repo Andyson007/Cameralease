@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT starttime from posts",
+  "describe": {
+    "columns": [
+      {
+        "name": "starttime",
+        "ordinal": 0,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "fe42b55a41b14758256dc5c2beaccb34d7b2fff664025e4d8202ac505d2209b5"
+}
