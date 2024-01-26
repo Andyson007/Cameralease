@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { camsType } from "./CameraList";
 import "./CameraCard.scss";
-import TimelineSpan from "./TimelineSpan";
+import TimeLine from "./TimeLine";
 
 export default function CameraCard ({name, model, uid, camobj}:{name:string, model:string, uid:string, camobj: camsType}) {
   const [ddopen, setDDOpen] = useState(false);
@@ -13,8 +13,6 @@ export default function CameraCard ({name, model, uid, camobj}:{name:string, mod
   const [username, setUsername] = useState<string | undefined>();
 
   const timeSpan = [25200, 54000]; // Times of day in seconds since midnight UTC (-3600000 for UTC+1)
-  const dateTimeSpan = timeSpan.map(f => new Date(f*1000)); // Make the timespan into date objects to avoid repetition
-  const textTimeSpan = dateTimeSpan.map(f => f.toLocaleTimeString("no-NB", {timeStyle: "short"})); // turn it into text (military time)
 
   let nowDate = new Date();
 
@@ -52,19 +50,7 @@ export default function CameraCard ({name, model, uid, camobj}:{name:string, mod
         </div>
       </div>
       <div className={ddopen ? "dropdown open" : "dropdown"}>
-        <div className="outertimeline">
-          <div className="timeline">
-            <TimelineSpan daystart={timeSpan[0]} dayend={timeSpan[1]} label="username" length={3600000} start={3600000}></TimelineSpan>
-            <TimelineSpan daystart={timeSpan[0]} dayend={timeSpan[1]} label="username" length={3600000} start={3600000}></TimelineSpan>
-            <div style={
-              {left: `${progress}%`, display: (progress >= 0 && progress <= 100 ? "" : "none")} // Current time in day in percent
-            } className="currenttime"></div>
-          </div>
-          <div className="timelabels">
-            <span>{textTimeSpan[0]}</span>
-            <span>{textTimeSpan[1]}</span>
-          </div>
-        </div>
+        <TimeLine progress={progress} timeSpan={timeSpan}></TimeLine>
         <div className="choosetimelabels">
           <span className="grayitalics">from</span>
           <span className="grayitalics">to</span>

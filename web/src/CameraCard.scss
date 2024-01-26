@@ -50,25 +50,6 @@
     flex-direction: column;
     gap: 8px;
 
-    .timeline {
-      display: flex;
-      flex-direction: row;
-      height: 12px;
-      border-radius: 4px;
-      background-color: #dfdfdf;
-      overflow: hidden;
-
-      .currenttime {
-        position: sticky;
-        display: block;
-        background-color: #000000;
-        border-radius: 4px;
-
-        width: 2px;
-        height: 12px;
-      }
-    }
-
     .timelabels {
       display: flex;
       flex-direction: row;
