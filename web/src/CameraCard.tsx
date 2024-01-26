@@ -50,7 +50,9 @@ export default function CameraCard ({name, model, uid, camobj}:{name:string, mod
         </div>
       </div>
       <div className={ddopen ? "dropdown open" : "dropdown"}>
-        <TimeLine progress={progress} timeSpan={timeSpan}></TimeLine>
+        <TimeLine progress={progress} timeSpan={timeSpan} textVis={true} timeLineSpans={[[3600000,3600000]]}></TimeLine>
+
+        {/* TIME & DATE RESERVATION */}
         <div className="choosetimelabels">
           <span className="grayitalics">from</span>
           <span className="grayitalics">to</span>
@@ -94,6 +96,8 @@ export default function CameraCard ({name, model, uid, camobj}:{name:string, mod
         </div>
         <input type="text" placeholder="Reservees name"></input>
         <button className="dropdownbtn reserve">Reserve</button>
+
+        {/* DEBUG (Database camera ID) */}
         <span className="grayitalics">{uid}</span>
       </div>
     </div>
