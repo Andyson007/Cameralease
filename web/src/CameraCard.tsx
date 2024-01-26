@@ -3,7 +3,7 @@ import { camsType } from "./CameraList";
 import "./CameraCard.scss";
 import TimeLine from "./TimeLine";
 
-export default function CameraCard ({name, model, uid, camobj}:{name:string, model:string, uid:string, camobj: camsType}) {
+export default function CameraCard ({name, model, uid, user, starttime, reservations}:{name:string, model:string, uid:string, user: string | null, starttime: number | null, reservations: {start: number, end: number, user: string}[]}) {
   const [ddopen, setDDOpen] = useState(false);
   const [timestart, setTimestart] = useState(0);
   const [timelength, setTimelength] = useState(0);
@@ -50,7 +50,7 @@ export default function CameraCard ({name, model, uid, camobj}:{name:string, mod
         </div>
       </div>
       <div className={ddopen ? "dropdown open" : "dropdown"}>
-        <TimeLine progress={progress} timeSpan={timeSpan} textVis={true} timeLineSpans={[{start: 3600000, length:3600000, label: "username"}]}></TimeLine>
+        <TimeLine progress={progress} timeSpan={timeSpan} textVis={true} timeLineSpans={reservations.map(r => { return {start:r.start, length: r.end - r.start, label: r.user}})}></TimeLine>
 
         {/* TIME & DATE RESERVATION */}
         <div className="choosetimelabels">

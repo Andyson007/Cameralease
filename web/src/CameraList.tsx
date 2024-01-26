@@ -16,10 +16,10 @@ var cameras = [
   },
 ];
 
-export type camsType = {name: string, model: string, uid: string | number, reservations: {}[], starttime : number | undefined, user: string | undefined}
+export type camsType = {name: string, model: string, uid: string | number, reservations: {start: number, end: number, user: string}[], starttime : number | null, user: string | null}
 
 export function CameraList () {
-  const [cams, setCams] = useState<camsType[]>([{name: "Loading...", model: "N/A", uid: "ffff", reservations: [], starttime: undefined, user: undefined}]);
+  const [cams, setCams] = useState<camsType[]>([{name: "Loading...", model: "N/A", uid: "ffff", reservations: [], starttime: null, user: null}]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<number>(0);
   
@@ -59,7 +59,7 @@ export function CameraList () {
   return (
     <div id="cameralist">
       {/*error === 0 ? */ (loading ? "Loading..." : cams.map(f => {
-          return (<CameraCard key={f.uid} name={f.name} model={f.model} uid={f.uid.toString()} camobj={f}></CameraCard>)
+          return (<CameraCard key={f.uid} name={f.name} model={f.model} uid={f.uid.toString()} reservations={f.reservations} user={f.user} starttime={f.starttime}></CameraCard>)
         })) /*: `error: ${error}`*/}
     </div>
   );
