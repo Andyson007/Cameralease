@@ -50,7 +50,7 @@ export default function CameraCard ({name, model, uid, camobj}:{name:string, mod
         </div>
       </div>
       <div className={ddopen ? "dropdown open" : "dropdown"}>
-        <TimeLine progress={progress} timeSpan={timeSpan} textVis={true} timeLineSpans={[[3600000,3600000]]}></TimeLine>
+        <TimeLine progress={progress} timeSpan={timeSpan} textVis={true} timeLineSpans={[{start: 3600000, length:3600000, label: "username"}]}></TimeLine>
 
         {/* TIME & DATE RESERVATION */}
         <div className="choosetimelabels">
