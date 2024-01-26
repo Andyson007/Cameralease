@@ -1,10 +1,10 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT starttime from posts",
+  "query": "SELECT DISTINCT date(datetime(starttime, 'unixepoch')) AS date FROM posts ORDER BY date DESC",
   "describe": {
     "columns": [
       {
-        "name": "starttime",
+        "name": "date",
         "ordinal": 0,
         "type_info": "Text"
       }
@@ -16,5 +16,5 @@
       true
     ]
   },
-  "hash": "fe42b55a41b14758256dc5c2beaccb34d7b2fff664025e4d8202ac505d2209b5"
+  "hash": "b50e355b747b1994943973d0c77eb45a0b1d6460d5dcc708c88095a34c64432d"
 }

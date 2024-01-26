@@ -1,0 +1,44 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id, camid, starttime, endtime, name FROM posts WHERE date(datetime(starttime, 'unixepoch')) = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Int64"
+      },
+      {
+        "name": "camid",
+        "ordinal": 1,
+        "type_info": "Int64"
+      },
+      {
+        "name": "starttime",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "endtime",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "name",
+        "ordinal": 4,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "0613a071f837224dd4c5dd60e58dca4394fad891f2e24c5c19d59e8622be0c86"
+}
