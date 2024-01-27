@@ -5,7 +5,7 @@ export default function TimelineSpan ({start, length, label, daystart, dayend} :
   console.log(start, length, label, daystart, dayend);
 
   return (
-    <span style={{ width: `${length / (dayend - daystart) * .1}%`,
-      left: `${(start - daystart) / (dayend - daystart) * .1}%` }} title={label} className="timelinespan"></span>
+    <span style={{ width: `${length / (dayend - daystart) * 100}%`,
+      left: `${start / (dayend - daystart) * 100}%` }} title={label} className="timelinespan"></span>
   );
 }

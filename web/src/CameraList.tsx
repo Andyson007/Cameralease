@@ -19,7 +19,7 @@ var cameras = [
 export type camsType = {name: string, model: string, uid: string | number, reservations: {start: number, end: number, user: string}[], starttime : number | null, user: string | null}
 
 export function CameraList () {
-  const [cams, setCams] = useState<camsType[]>([{name: "Loading...", model: "N/A", uid: "ffff", reservations: [], starttime: null, user: null}]);
+  const [cams, setCams] = useState<camsType[]>([{name: "Loading...", model: "N/A", uid: "ffff", reservations: [{start: 3600, end: 7200, user: "username"}], starttime: null, user: null}]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<number>(0);
   

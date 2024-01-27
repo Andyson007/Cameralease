@@ -15,13 +15,14 @@ export default function CameraCard ({name, model, uid, user, starttime, reservat
   const timeSpan = [25200, 54000]; // Times of day in seconds since midnight UTC (-3600000 for UTC+1)
 
   let nowDate = new Date();
+  let midnightTime = 0;
 
   function updatetimes() {
     nowDate = new Date();
-    let currentTime = nowDate.getTime();
-    let midnightTime = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(),0,0,0).getTime(); // Midnight today
+    let currentTime = nowDate.getTime() * 0.001;
+    midnightTime = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(),0,0,0).getTime() * 0.001; // Midnight today
     
-    let prog = (currentTime-midnightTime-Math.min(...timeSpan)*1000 + nowDate.getTimezoneOffset()*60 * 1000) / (Math.max(...timeSpan) - Math.min(...timeSpan)) * .1 
+    let prog = (currentTime-midnightTime-Math.min(...timeSpan) + nowDate.getTimezoneOffset()*60) / (Math.max(...timeSpan) - Math.min(...timeSpan)) * 100 
     setProgress(prog);
   }
 
@@ -50,7 +51,7 @@ export default function CameraCard ({name, model, uid, user, starttime, reservat
         </div>
       </div>
       <div className={ddopen ? "dropdown open" : "dropdown"}>
-        <TimeLine progress={progress} timeSpan={timeSpan} textVis={true} timeLineSpans={reservations.map(r => { return {start:r.start, length: r.end - r.start, label: r.user}})}></TimeLine>
+        <TimeLine progress={progress} timeSpan={timeSpan} textVis={true} timeLineSpans={reservations.map(r => { return {start: r.start - midnightTime, length: r.end - r.start, label: r.user}})}></TimeLine>
 
         {/* TIME & DATE RESERVATION */}
         <div className="choosetimelabels">
