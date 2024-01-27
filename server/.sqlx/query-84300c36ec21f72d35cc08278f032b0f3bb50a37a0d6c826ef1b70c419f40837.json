@@ -16,12 +16,12 @@
       {
         "name": "starttime",
         "ordinal": 2,
-        "type_info": "Text"
+        "type_info": "Int64"
       },
       {
         "name": "endtime",
         "ordinal": 3,
-        "type_info": "Text"
+        "type_info": "Int64"
       },
       {
         "name": "name",

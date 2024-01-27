@@ -259,11 +259,11 @@ async fn history(mut db: Connection<Db>) -> Option<Json<Vec<Entry>>> {
                         id: Some(r.id),
                         camid: r.camid,
                         starttime: match &r.starttime {
-                            Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                            Some(x) => Some(*x as u32),
                             None => None,
                         },
                         endtime: match &r.endtime {
-                            Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                            Some(x) => Some(*x as u32),
                             None => None,
                         },
                         name: r.name.clone(),
@@ -292,11 +292,11 @@ async fn get_name(mut db: Connection<Db>, name: &str) -> Option<Json<Vec<Entry>>
                     id: Some(r.id),
                     camid: r.camid,
                     starttime: match &r.starttime {
-                        Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                        Some(x) => Some(*x as u32),
                         None => None,
                     },
                     endtime: match &r.endtime {
-                        Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                        Some(x) => Some(*x as u32),
                         None => None,
                     },
                     name: r.name.clone(),
@@ -322,11 +322,11 @@ async fn get_camid(mut db: Connection<Db>, camid: i64) -> Option<Json<Vec<Entry>
                     id: Some(r.id),
                     camid: r.camid,
                     starttime: match &r.starttime {
-                        Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                        Some(x) => Some(*x as u32),
                         None => None,
                     },
                     endtime: match &r.endtime {
-                        Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                        Some(x) => Some(*x as u32),
                         None => None,
                     },
                     name: r.name.clone(),
@@ -355,11 +355,11 @@ async fn get_date(mut db: Connection<Db>, date: &str) -> Option<Json<Vec<Entry>>
                     id: Some(r.id),
                     camid: r.camid,
                     starttime: match &r.starttime {
-                        Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                        Some(x) => Some(*x as u32),
                         None => None,
                     },
                     endtime: match &r.endtime {
-                        Some(x) => Some(x.parse::<u32>().expect("strattime isn't a u32")),
+                        Some(x) => Some(*x as u32),
                         None => None,
                     },
                     name: r.name.clone(),
