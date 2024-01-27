@@ -6,11 +6,9 @@ import TimeLine from "./TimeLine";
 export default function CameraCard ({name, model, uid, user, starttime, reservations}:{name:string, model:string, uid:string, user: string | null, starttime: number | null, reservations: {start: number, end: number, user: string}[]}) {
   const [ddopen, setDDOpen] = useState(false);
   const [timestart, setTimestart] = useState(0);
-  const [timelength, setTimelength] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [fromDate, setFromDate] = useState(new Date());
-  const [toDate, setToDate] = useState(new Date());
-  const [username, setUsername] = useState<string | undefined>();
+  const [fromDate] = useState(new Date());
+  const [toDate] = useState(new Date());
 
   const timeSpan = [25200, 54000]; // Times of day in seconds since midnight UTC (-3600000 for UTC+1)
 
