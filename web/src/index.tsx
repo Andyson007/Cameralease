@@ -1,8 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.scss';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import MainPage from './MainPage';
+import { HistoryPage } from './History';
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <MainPage />
+  },
+  {
+    path: "/history",
+    element: <HistoryPage />
+  },
+]);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -10,7 +23,7 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router}></RouterProvider>
   </React.StrictMode>
 );
 
