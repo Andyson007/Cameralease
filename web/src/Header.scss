@@ -1,3 +1,7 @@
+.outerheader {
+  background-color: #ffffff;
+}
+
 header {
   
   padding: .5rem;
@@ -20,3 +24,19 @@ header {
   }
 }
 
+nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: #efefef;
+  gap: 1em;
+  
+  .linkbtn {
+    background-color: #efefef;
+    padding: .5em;
+    padding-bottom: .375em;
+    color: #000000;
+    text-decoration: none;
+    border-bottom: .125em solid #000000;
+  }
+}
