@@ -10,7 +10,7 @@ export default function TimeLine({timeSpan, progress, textVis, timeLineSpans}: {
     <div className="outertimeline">
       <div className="timeline">
         {timeLineSpans.map(tls => 
-          <TimelineSpan daystart={timeSpan[0]} dayend={timeSpan[1]} label={tls.label} length={tls.length} start={tls.start}></TimelineSpan>
+          <TimelineSpan key={`${timeSpan[0]}-${timeSpan[1]}.${tls.label}`} daystart={timeSpan[0]} dayend={timeSpan[1]} label={tls.label} length={tls.length} start={tls.start}></TimelineSpan>
         )}
         { progress &&
           <div style={

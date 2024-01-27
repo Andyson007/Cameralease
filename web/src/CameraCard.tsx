@@ -3,7 +3,7 @@ import { camsType } from "./CameraList";
 import "./CameraCard.scss";
 import TimeLine from "./TimeLine";
 
-export default function CameraCard ({name, model, uid, camobj}:{name:string, model:string, uid:string, camobj: camsType}) {
+export default function CameraCard ({name, model, uid, user, starttime, reservations}:{name:string, model:string, uid:string, user: string | null, starttime: number | null, reservations: {start: number, end: number, user: string}[]}) {
   const [ddopen, setDDOpen] = useState(false);
   const [timestart, setTimestart] = useState(0);
   const [timelength, setTimelength] = useState(0);
@@ -15,13 +15,14 @@ export default function CameraCard ({name, model, uid, camobj}:{name:string, mod
   const timeSpan = [25200, 54000]; // Times of day in seconds since midnight UTC (-3600000 for UTC+1)
 
   let nowDate = new Date();
+  let midnightTime = 0;
 
   function updatetimes() {
     nowDate = new Date();
-    let currentTime = nowDate.getTime();
-    let midnightTime = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(),0,0,0).getTime(); // Midnight today
+    let currentTime = nowDate.getTime() * 0.001;
+    midnightTime = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(),0,0,0).getTime() * 0.001; // Midnight today
     
-    let prog = (currentTime-midnightTime-Math.min(...timeSpan)*1000 + nowDate.getTimezoneOffset()*60 * 1000) / (Math.max(...timeSpan) - Math.min(...timeSpan)) * .1 
+    let prog = (currentTime-midnightTime-Math.min(...timeSpan) + nowDate.getTimezoneOffset()*60) / (Math.max(...timeSpan) - Math.min(...timeSpan)) * 100 
     setProgress(prog);
   }
 
@@ -50,7 +51,7 @@ export default function CameraCard ({name, model, uid, camobj}:{name:string, mod
         </div>
       </div>
       <div className={ddopen ? "dropdown open" : "dropdown"}>
-        <TimeLine progress={progress} timeSpan={timeSpan} textVis={true} timeLineSpans={[{start: 3600000, length:3600000, label: "username"}]}></TimeLine>
+        <TimeLine progress={progress} timeSpan={timeSpan} textVis={true} timeLineSpans={reservations.map(r => { return {start: r.start - midnightTime, length: r.end - r.start, label: r.user}})}></TimeLine>
 
         {/* TIME & DATE RESERVATION */}
         <div className="choosetimelabels">
