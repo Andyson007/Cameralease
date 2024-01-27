@@ -102,14 +102,15 @@ td {
 }
 
 .tableOfContent {
+  margin: 0px;
   padding: 8px;
   display: flex;
   flex-direction: column;
-  align-self: center;
   position: sticky;
+  top: 100px;
+  height: calc(100vh - 100px);
   overflow-y: scroll;
   overscroll-behavior: contain;
-  height: 50vh;
   gap: 5px;
   li {
     list-style: none;

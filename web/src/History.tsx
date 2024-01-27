@@ -45,7 +45,6 @@ export function HistoryPage() {
   return (
     <div>
       {
-        // offset the height of the table of content as it has height: 100vh;
         // <nav>
         //   {
         //     cams.map(f =>
@@ -83,9 +82,9 @@ function HistoryCard({ entries, cam }: { entries: leaseType[], cam: camsType }) 
         <div className="historytimeline">
           <TimeLine timeSpan={timeSpan} progress={undefined} textVis={false} timeLineSpans={entries.map(f => {
             return {
-              "start": f.starttime % 86400,
+              "start": f.starttime % 86400 - timeSpan[0],
               "length": (f.endtime - f.starttime) % 86400,
-              "label": `${f.name}: ${new Date(f.starttime).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
+              "label": `${f.name}: ${new Date(f.starttime*1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime*1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
             }
           })} />
         </div>
@@ -99,15 +98,14 @@ function HistoryCard({ entries, cam }: { entries: leaseType[], cam: camsType }) 
           <tbody>
             {
               entries.map(f => {
-                console.log((f.endtime - f.starttime) % 86400);
                 return <tr className="historyEntry">
                   <td>{f.name}</td>
-                  <td className="historytimeline" title={`${f.name}: ${new Date(f.starttime).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime).toLocaleTimeString("no-NB", { timeStyle: "short" })}`}>
+                  <td className="historytimeline" title={`${f.name}: ${new Date(f.starttime*1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime*1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`}>
                     <TimeLine timeSpan={timeSpan} progress={undefined} textVis={false} timeLineSpans={[
                       {
-                        "start": f.starttime % 86400,
+                        "start": f.starttime % 86400 - timeSpan[0] ,
                         "length": (f.endtime - f.starttime) % 86400,
-                        "label": `${f.name}: ${new Date(f.starttime).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
+                        "label": `${new Date(f.starttime*1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime*1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
                       }
                     ]} />
                   </td>

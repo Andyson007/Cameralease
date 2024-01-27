@@ -146,15 +146,34 @@ struct ReservationInput {
 }
 
 #[derive(Responder)]
-enum Response {
+enum Response<T> {
     #[response(status = 400, content_type = "text")]
     Invalid(String),
     #[response(status = 202, content_type = "json")]
-    Valid(Json<Camera>),
+    Valid(Json<T>),
+}
+
+#[post("/reserve/cancel", data = "<data>")]
+async fn cancel(data: Json<ReservationInput>) -> Result<Response<()>> {
+    let mut val = CAMERAS.lock().unwrap();
+    let camera = match val.get_mut(&data.uid) {
+        None => return Ok(Response::Invalid(String::from("can't find camid"))),
+        Some(x) => x,
+    };
+    if let Some(pos) = camera
+        .reservations
+        .iter()
+        .position(|x| x.start == data.start && x.end == data.end && x.user == data.user)
+    {
+        camera.reservations.remove(pos);
+        Ok(Response::Valid(Json(())))
+    } else {
+        Ok(Response::Invalid(String::from("Can't find reservation")))
+    }
 }
 
 #[post("/reserve", data = "<data>")]
-async fn reserve(data: Json<ReservationInput>) -> Result<Response> {
+async fn reserve(data: Json<ReservationInput>) -> Result<Response<Camera>> {
     let mut val = CAMERAS.lock().unwrap();
     let camera = match val.get_mut(&data.uid) {
         None => return Ok(Response::Invalid(String::from("Not valid uid"))),
@@ -236,7 +255,7 @@ async fn lease(
             camera.distribution = Some((data.start, data.user.clone()));
         }
     }
-    Ok((Status::Accepted, None))
+    Ok((Status::Accepted, Some("Accepted")))
 }
 
 #[get("/<path..>", rank = 13)]
@@ -500,7 +519,7 @@ pub fn stage() -> AdHoc {
             .attach(AdHoc::try_on_ignite("SQLx Migrations", run_migrations))
             .mount(
                 "/api",
-                routes![cams, lease, history, reserve, get_name, get_camid, dates, get_date],
+                routes![cams, lease, history, reserve, get_name, get_camid, dates, get_date, cancel],
             )
     })
 }
