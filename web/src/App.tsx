@@ -1,14 +1,17 @@
-import React from 'react';
 import { CameraList } from './CameraList';
+import { HistoryPage } from './History';
 import Header from "./Header";
 
 function App() {
   return (
-    <div>
-      <Header></Header>
-      <CameraList></CameraList>
-    </div>
-  );
+    <HistoryPage />
+  )
+  // return (
+  //   <div>
+  //     <Header/>
+  //     <CameraList/>
+  //   </div>
+  // );
 }
 
 export default App;
