@@ -1,18 +1,18 @@
 {
   "cameras": [
     {
+      "model": "model_sample1",
+      "name": "Name_sample1",
+      "reservations": [],
+      "uid": 1
+    },
+    {
       "model": "model_samp0",
       "name": "Name_samp0",
       "reservations": [],
       "starttime": 12312313,
       "uid": 0,
       "user": "Andy0"
-    },
-    {
-      "model": "model_sample1",
-      "name": "Name_sample1",
-      "reservations": [],
-      "uid": 1
     },
     {
       "model": "model_sample2",

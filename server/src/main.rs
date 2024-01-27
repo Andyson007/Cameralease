@@ -477,11 +477,16 @@ async fn main() {
             .open(state_file)
             .unwrap(),
     );
-    let val = CAMERAS.lock().unwrap();
+    let val = CAMERAS
+        .lock()
+        .unwrap()
+        .iter()
+        .map(|x| x.1.clone())
+        .collect::<Vec<Camera>>();
     serde_json::to_writer_pretty(
         &mut writer,
         &json!({
-          "cameras":**val
+          "cameras":*val
         }),
     )
     .unwrap();
