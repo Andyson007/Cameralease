@@ -254,7 +254,7 @@ async fn history(mut db: Connection<Db>) -> Option<Json<Vec<Entry>>> {
 
 #[get("/<name>", rank = 2)]
 async fn get_name(mut db: Connection<Db>, name: &str) -> Option<Json<Vec<Entry>>> {
-    if !Regex::new("[^[a-zA-Z]*$]").unwrap().is_match(name) {
+    if !Regex::new("^[\\w\\s\\-]*$").unwrap().is_match(name) {
         return None;
     }
     sqlx::query!(
