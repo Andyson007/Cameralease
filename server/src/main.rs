@@ -173,22 +173,23 @@ struct Lease {
     user: String,
 }
 
-/// This function will return an error(400) if the lease request starts
-/// a lease that has already been started
 #[post("/lease", data = "<data>")]
-async fn lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<Status> {
+async fn lease(
+    mut db: Connection<Db>,
+    data: Json<Lease>,
+) -> Result<(Status, Option<&'static str>)> {
     if !Regex::new("^[\\w\\s\\-]*$")
         .unwrap()
         .is_match(data.user.as_str())
     {
-        return Ok(Status::BadRequest);
+        return Ok((Status::BadRequest, Some("Leased name doesn't match regex.")));
     }
     match data.end {
         Some(end) => {
             {
                 let mut val = CAMERAS.lock().unwrap();
                 let camera = match val.get_mut(data.uid) {
-                    None => return Ok(Status::BadRequest),
+                    None => return Ok((Status::BadRequest, Some("Uid out of bounds"))),
                     Some(x) => x,
                 };
                 camera.distribution = None;
@@ -207,16 +208,16 @@ async fn lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<Status> {
         None => {
             let mut val = CAMERAS.lock().unwrap();
             let camera = match val.get_mut(data.uid) {
-                None => return Ok(Status::BadRequest),
+                None => return Ok((Status::BadRequest, Some("Uid out of bounds"))),
                 Some(x) => x,
             };
             if (*camera).distribution.is_some() {
-                return Ok(Status::BadRequest);
+                return Ok((Status::BadRequest, Some("Camera already leased")));
             }
             camera.distribution = Some((data.start, data.user.clone()));
         }
     }
-    Ok(Status::Accepted)
+    Ok((Status::Accepted, None))
 }
 
 #[get("/<path..>", rank = 13)]
