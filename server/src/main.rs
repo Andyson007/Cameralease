@@ -2,12 +2,15 @@
 extern crate rocket;
 
 use std::{
+    collections::HashMap,
     fs::{self, OpenOptions},
     io::{BufWriter, Write},
     path::{Path, PathBuf},
     sync::Mutex,
+    time::SystemTime,
 };
 
+use once_cell::sync::Lazy;
 use regex::Regex;
 
 use serde_json::json;
@@ -26,7 +29,7 @@ use rocket_db_pools::{sqlx, Connection, Database};
 #[derive(Database)]
 #[database("sqlx")]
 struct Db(sqlx::SqlitePool);
-static CAMERAS: Mutex<Vec<Camera>> = Mutex::new(Vec::new());
+static CAMERAS: Mutex<Lazy<HashMap<u32, Camera>>> = Mutex::new(Lazy::new(|| HashMap::new()));
 
 type Result<T, E = rocket::response::Debug<sqlx::Error>> = std::result::Result<T, E>;
 
@@ -113,8 +116,24 @@ async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
 
 #[get("/cams")]
 async fn cams() -> Result<Json<Vec<Camera>>> {
-    let val = CAMERAS.lock().unwrap();
-    Ok(Json(val.to_vec()))
+    let mut val = CAMERAS.lock().unwrap();
+    for (_v, k) in &mut **val {
+        k.reservations = k
+            .reservations
+            .iter()
+            .filter(|reservation| {
+                reservation.end
+                    > SystemTime::now()
+                        .duration_since(std::time::UNIX_EPOCH)
+                        .unwrap()
+                        .as_secs() as u32
+            })
+            .map(|x| x.clone())
+            .collect::<Vec<Reservation>>();
+    }
+    Ok(Json(
+        val.iter().map(|x| x.1.clone()).collect::<Vec<Camera>>(),
+    ))
 }
 
 #[derive(Debug, Deserialize)]
@@ -122,7 +141,7 @@ async fn cams() -> Result<Json<Vec<Camera>>> {
 struct ReservationInput {
     start: u32,
     end: u32,
-    uid: usize,
+    uid: u32,
     user: String,
 }
 
@@ -137,7 +156,7 @@ enum Response {
 #[post("/reserve", data = "<data>")]
 async fn reserve(data: Json<ReservationInput>) -> Result<Response> {
     let mut val = CAMERAS.lock().unwrap();
-    let camera = match val.get_mut(data.uid) {
+    let camera = match val.get_mut(&data.uid) {
         None => return Ok(Response::Invalid(String::from("Not valid uid"))),
         Some(x) => x,
     };
@@ -169,7 +188,7 @@ async fn reserve(data: Json<ReservationInput>) -> Result<Response> {
 struct Lease {
     start: u32,
     end: Option<u32>,
-    uid: usize,
+    uid: u32,
     user: String,
 }
 
@@ -188,7 +207,7 @@ async fn lease(
         Some(end) => {
             {
                 let mut val = CAMERAS.lock().unwrap();
-                let camera = match val.get_mut(data.uid) {
+                let camera = match val.get_mut(&data.uid) {
                     None => return Ok((Status::BadRequest, Some("Uid out of bounds"))),
                     Some(x) => x,
                 };
@@ -207,7 +226,7 @@ async fn lease(
         }
         None => {
             let mut val = CAMERAS.lock().unwrap();
-            let camera = match val.get_mut(data.uid) {
+            let camera = match val.get_mut(&data.uid) {
                 None => return Ok((Status::BadRequest, Some("Uid out of bounds"))),
                 Some(x) => x,
             };
@@ -380,7 +399,7 @@ async fn main() {
     {
         let mut val = CAMERAS.lock().unwrap();
 
-        *val = json
+        **val = json
             .get("cameras")
             .expect(format!("No field cameras in {state_file}").as_str())
             .as_array()
@@ -388,60 +407,63 @@ async fn main() {
             .iter()
             .map(|x| {
                 let obj = x.as_object().unwrap();
-                Camera {
-                    name: obj
-                        .get("name")
-                        .unwrap()
-                        .as_str()
-                        .expect("not string in name field")
-                        .to_string(),
-                    model: obj
-                        .get("model")
-                        .unwrap()
-                        .as_str()
-                        .expect("not string in model field")
-                        .to_string(),
-                    uid: obj.get("uid").unwrap().as_u64().expect("uid wasn't an u32") as u32,
-                    distribution: match obj.get("starttime") {
-                        Some(x) => Some((
-                            x.as_u64().expect("not u64 in starttime") as u32,
-                            obj.get("user").unwrap().as_str().unwrap().to_string(),
-                        )),
-                        None => None,
+                (
+                    obj.get("uid").unwrap().as_u64().expect("uid wasn't an u32") as u32,
+                    Camera {
+                        name: obj
+                            .get("name")
+                            .unwrap()
+                            .as_str()
+                            .expect("not string in name field")
+                            .to_string(),
+                        model: obj
+                            .get("model")
+                            .unwrap()
+                            .as_str()
+                            .expect("not string in model field")
+                            .to_string(),
+                        uid: obj.get("uid").unwrap().as_u64().expect("uid wasn't an u32") as u32,
+                        distribution: match obj.get("starttime") {
+                            Some(x) => Some((
+                                x.as_u64().expect("not u64 in starttime") as u32,
+                                obj.get("user").unwrap().as_str().unwrap().to_string(),
+                            )),
+                            None => None,
+                        },
+                        reservations: obj
+                            .get("reservations")
+                            .unwrap_or(&serde_json::Value::Array(Vec::new()))
+                            .as_array()
+                            .expect("reservations isn't an array")
+                            .iter()
+                            .map(|x| {
+                                let obj = x.as_object().expect("reservation not object");
+                                Reservation {
+                                    start: obj
+                                        .get("start")
+                                        .expect("no start field in reservation")
+                                        .as_u64()
+                                        .expect("start in reservation not u64")
+                                        as u32,
+                                    end: obj
+                                        .get("end")
+                                        .expect("no end field in reservation")
+                                        .as_u64()
+                                        .expect("end in reservation not u64")
+                                        as u32,
+                                    user: obj
+                                        .get("user")
+                                        .expect("no user field in reservation")
+                                        .as_str()
+                                        .expect("user filed not str")
+                                        .to_string(),
+                                }
+                            })
+                            .collect(),
                     },
-                    reservations: obj
-                        .get("reservations")
-                        .unwrap_or(&serde_json::Value::Array(Vec::new()))
-                        .as_array()
-                        .expect("reservations isn't an array")
-                        .iter()
-                        .map(|x| {
-                            let obj = x.as_object().expect("reservation not object");
-                            Reservation {
-                                start: obj
-                                    .get("start")
-                                    .expect("no start field in reservation")
-                                    .as_u64()
-                                    .expect("start in reservation not u64")
-                                    as u32,
-                                end: obj
-                                    .get("end")
-                                    .expect("no end field in reservation")
-                                    .as_u64()
-                                    .expect("end in reservation not u64")
-                                    as u32,
-                                user: obj
-                                    .get("user")
-                                    .expect("no user field in reservation")
-                                    .as_str()
-                                    .expect("user filed not str")
-                                    .to_string(),
-                            }
-                        })
-                        .collect(),
-                }
+                )
             })
-            .collect::<Vec<Camera>>();
+            .collect::<HashMap<u32, Camera>>();
     }
     let _result = rocket::build()
         .mount("/", routes![files])
@@ -459,7 +481,7 @@ async fn main() {
     serde_json::to_writer_pretty(
         &mut writer,
         &json!({
-          "cameras":*val
+          "cameras":**val
         }),
     )
     .unwrap();

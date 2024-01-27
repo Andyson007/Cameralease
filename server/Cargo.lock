@@ -198,6 +198,7 @@ name = "cameralease"
 version = "0.0.1"
 dependencies = [
  "futures",
+ "once_cell",
  "regex",
  "rocket",
  "rocket_db_pools",

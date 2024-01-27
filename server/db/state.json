@@ -11,18 +11,7 @@
     {
       "model": "model_sample1",
       "name": "Name_sample1",
-      "reservations": [
-        {
-          "end": 7,
-          "start": 5,
-          "user": "Andy"
-        },
-        {
-          "end": 75,
-          "start": 55,
-          "user": "averieyy"
-        }
-      ],
+      "reservations": [],
       "uid": 1
     },
     {
