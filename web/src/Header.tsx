@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import "./Header.scss";
 import { ReactComponent as Logo } from './logo.svg';
-import { useEffect, useState } from "react";
 
 export default function Header() {
   return (
