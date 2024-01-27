@@ -35,7 +35,8 @@ nav {
   flex-direction: column;
   background-color: #efefef;
   gap: 16px;
-  max-width: 500px;
+  max-width: 700px;
+  min-width: 500px;
   padding: 16px;
 }
 
@@ -92,4 +93,36 @@ nav {
 td {
   width: 0;
   align-self: center;
+}
+
+.split {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.tableOfContent {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  position: sticky;
+  overflow-y: scroll;
+  overscroll-behavior: contain;
+  height: 100vh;
+  gap: 5px;
+  li {
+    list-style: none;
+    background-color: #ededed;
+    border-radius: 5px;
+    box-shadow: 0 8px 16px -4px #000;
+    width: fit-content;
+    a {
+      text-decoration: none;
+      font-size: 1.7rem;
+      color: #1a1a2a;
+      padding: 5px;
+    }
+    border-left: 5px solid lightcyan;
+  }
 }

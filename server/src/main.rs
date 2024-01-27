@@ -177,7 +177,10 @@ struct Lease {
 /// a lease that has already been started
 #[post("/lease", data = "<data>")]
 async fn lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<Status> {
-    if !Regex::new("[^[a-zA-Z]*$]").unwrap().is_match(data.user.as_str()) {
+    if !Regex::new("^[\\w\\s\\-]*$")
+        .unwrap()
+        .is_match(data.user.as_str())
+    {
         return Ok(Status::BadRequest);
     }
     match data.end {
@@ -317,7 +320,7 @@ async fn get_camid(mut db: Connection<Db>, camid: i64) -> Option<Json<Vec<Entry>
 
 #[get("/date/<date>")]
 async fn get_date(mut db: Connection<Db>, date: &str) -> Option<Json<Vec<Entry>>> {
-    if !Regex::new("^\\d{5}-\\d{2}-\\d{2}").unwrap().is_match(date) {
+    if !Regex::new("^\\d{4}-\\d{2}-\\d{2}").unwrap().is_match(date) {
         return None;
     }
     sqlx::query!(

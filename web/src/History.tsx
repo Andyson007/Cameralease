@@ -1,22 +1,59 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TimeLine from "./TimeLine";
 import "./History.scss"
 
-type camsType = { name: string, id: number, uid: number, starttime: number, endtime: number }
+type camsType = { name: string, model: string, uid: string | number, reservations: {start: number, end: number, user: string}[], starttime: number | undefined, user: string | undefined }
 type leaseType = { name: string, id: number, camid: number, starttime: number, endtime: number }
 
 export function HistoryPage() {
-  const cams: camsType[] = JSON.parse('[{"name":"Name_samp0","model":"model_samp0","uid":1,"starttime":12312313,"user":"Andy0","reservations":[]},{"name":"Name_sample1","model":"model_sample1","uid":1,"reservations":[{"start":5,"end":7,"user":"Andy"},{"start":55,"end":75,"user":"averieyy"}]},{"name":"Name_sample2","model":"model_sample2","uid":2,"reservations":[]}]');
+  const [cams, setCams] = useState<camsType[]>([{name: "Loading...", model: "N/A", uid: "ffff", reservations: [], starttime: undefined, user: undefined}]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<number>(0);
+
+  useEffect(() => {
+    setLoading(false);
+    // return;
+    if (!loading) return;
+    fetch("/api/cams").then(resp => {
+      if (!resp.ok) {
+        setError(resp.status);
+        return;
+      }
+      return resp.text().then(t => {
+        try {
+          let parsed = JSON.parse(t);
+
+          console.log(parsed);
+          if (!(parsed instanceof Array)) setError(500);
+
+          setCams(parsed);
+
+          setLoading(false);
+          console.log(cams);
+          console.log(JSON.parse(t));
+          return "";
+        }
+        catch (e) {
+          setError(500);
+          return "";
+        }
+      }
+      );
+    });
+  }, [loading, cams]);
   const [tab, setTab] = useState(1);
   return (
     <div>
-      <nav>
-        {
-          cams.map(f =>
-            <button type="button" id={`${f.uid}`} onClick={() => changeTab(f.uid)}>{f.name}</button>
-          )
-        }
-      </nav>
+      {
+        // offset the height of the table of content as it has height: 100vh;
+        // <nav>
+        //   {
+        //     cams.map(f =>
+        //       <button type="button" id={`${f.uid}`} onClick={() => changeTab(f.uid)}>{f.name}</button>
+        //     )
+        //   }
+        // </nav>
+      }
       <HistoryList camid={tab} cams={cams} />
     </div>
   )
@@ -46,8 +83,8 @@ function HistoryCard({ entries, cam }: { entries: leaseType[], cam: camsType }) 
         <div className="historytimeline">
           <TimeLine timeSpan={timeSpan} progress={undefined} textVis={false} timeLineSpans={entries.map(f => {
             return {
-              "start": f.starttime % 86400000,
-              "length": (f.endtime - f.starttime) % 86400000,
+              "start": f.starttime % 86400,
+              "length": (f.endtime - f.starttime) % 86400,
               "label": `${f.name}: ${new Date(f.starttime).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
             }
           })} />
@@ -62,14 +99,14 @@ function HistoryCard({ entries, cam }: { entries: leaseType[], cam: camsType }) 
           <tbody>
             {
               entries.map(f => {
-                console.log((f.endtime - f.starttime) % 86400000);
+                console.log((f.endtime - f.starttime) % 86400);
                 return <tr className="historyEntry">
                   <td>{f.name}</td>
                   <td className="historytimeline" title={`${f.name}: ${new Date(f.starttime).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime).toLocaleTimeString("no-NB", { timeStyle: "short" })}`}>
                     <TimeLine timeSpan={timeSpan} progress={undefined} textVis={false} timeLineSpans={[
                       {
-                        "start": f.starttime % 86400000,
-                        "length": (f.endtime - f.starttime) % 86400000,
+                        "start": f.starttime % 86400,
+                        "length": (f.endtime - f.starttime) % 86400,
                         "label": `${f.name}: ${new Date(f.starttime).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
                       }
                     ]} />
@@ -88,33 +125,92 @@ function HistoryCard({ entries, cam }: { entries: leaseType[], cam: camsType }) 
 }
 
 function HistoryList({ camid, cams }: { camid: number, cams: camsType[] }) {
-  let parsed: string[];
-  if (camid === 1) {
-    parsed = JSON.parse('["2009-02-13","1970-05-23"]');
-  } else if (camid === 0) {
-    parsed = JSON.parse('["2009-02-13","1970-05-23"]');
-  } else {
-    parsed = JSON.parse('[]');
-  }
-  const arr: string[] = [];
-  parsed.forEach(f => {
-    arr.push(f);
-  })
-  return (
-    <div className="historylist">
-      {
-        arr.map(f => {
-          return (<HistoryDate date={f} cams={cams} />)
-        })
+  const [dates, setDates] = useState<string[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<number>(0);
+
+  useEffect(() => {
+    setLoading(false);
+    // return;
+    if (!loading) return;
+    fetch("/api/date").then(resp => {
+      if (!resp.ok) {
+        setError(resp.status);
+        return;
       }
+      return resp.text().then(t => {
+        try {
+          let parsed = JSON.parse(t);
+          console.log(parsed);
+
+          console.log(parsed);
+          if (!(parsed instanceof Array)) setError(500);
+          setDates(parsed);
+
+          setLoading(false);
+          return "";
+        }
+        catch (e) {
+          setError(500);
+          return "";
+        }
+      }
+      );
+    });
+  }, [loading]);
+
+  return (
+    <div className="split">
+      <div className="historylist">
+        {
+          dates.map(f => {
+            return (<HistoryDate date={f} cams={cams} />)
+          })
+        }
+      </div>
+      <ol className="tableOfContent">
+        {
+          dates.map(f => <li><a href={`#${f}`}>{f}</a></li>)
+        }
+      </ol>
     </div>
   )
 }
 
 function HistoryDate({ date, cams }: { date: string, cams: camsType[] }) {
-  const parsed: leaseType[] = JSON.parse('[{"id":1,"camid":2,"starttime":1223567890,"endtime":1233567890,"name":"xX_EpicGamer_Xx"},{"id":1,"camid":1,"starttime":1230567890,"endtime":1235567890,"name":"Andy"},{"id":1,"camid":2,"starttime":1234567890,"endtime":1237977890,"name":"Andy"}]');
+  const [leases, setLeases] = useState<leaseType[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<number>(0);
+
+  useEffect(() => {
+    setLoading(false);
+    // return;
+    if (!loading) return;
+    fetch(`/api/date/${date}`).then(resp => {
+      if (!resp.ok) {
+        setError(resp.status);
+        return;
+      }
+      return resp.text().then(t => {
+        try {
+          let parsed = JSON.parse(t);
+
+          if (!(parsed instanceof Array)) setError(500);
+          setLeases(parsed);
+
+          setLoading(false);
+          return "";
+        }
+        catch (e) {
+          setError(500);
+          return "";
+        }
+      }
+      );
+    });
+  }, [loading]);
   const map = new Map();
-  parsed.forEach(f => {
+  leases.forEach(f => {
     let topush;
     if (!map.has(f.camid)) {
       topush = [];

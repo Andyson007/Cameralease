@@ -1,7 +1,7 @@
 CREATE TABLE posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     camid INTEGER NOT NULL,
-    starttime text,
-    endtime text,
+    starttime INTEGER,
+    endtime INTEGER,
     name text
 );
