@@ -1,0 +1,35 @@
+$sw: min(3vw, .5em);
+$w: min(6vw, 1em);
+$sh: min(6vw, 1em);
+$h: min(24vw, 4em);
+
+.loadingparent {
+  display: flex;
+  flex-direction: row;
+  gap: $sw;
+  padding-top: $h;
+
+  height: $h;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.loadbarelement {
+  display: inline-block;
+  animation: infinite 1s load;
+  width: $w;
+  background-color: #000000;
+}
+
+@keyframes load {
+  from {
+    height: $sh;
+  }
+  50% {
+    height: $h;
+  }
+  to {
+    height: $sh;
+  }
+}

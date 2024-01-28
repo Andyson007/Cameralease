@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import CameraCard from "./CameraCard";
+import LoadingScreen from "./LoadingScreen";
 
 // var cameras = [
 //   {
@@ -47,7 +48,7 @@ export function CameraList ({alertBox}: {alertBox: (title:string, body:string)=>
           return "";
         }
         catch (e) {
-          alertBox("Internal server error (500)", "Please contact the dev team about this.");
+          alertBox("Internal server error (500)", "Use the rust server to avoid this. localhost:8000");
           setError(500);
           return "";
         }
@@ -58,7 +59,7 @@ export function CameraList ({alertBox}: {alertBox: (title:string, body:string)=>
 
   return (
     <div id="cameralist">
-      {/*error === 0 ? */ (error ? "Loading..." : cams.map(f => {
+      {/*error === 0 ? */ (error ? <LoadingScreen /> : cams.map(f => {
           return (<CameraCard key={f.uid} reload={()=>setReload(true)} name={f.name} model={f.model} uid={f.uid} reservations={f.reservations} user={f.user || null} starttime={f.starttime || null} alertBox={alertBox} />)})) /*: `error: ${error}`*/}
     </div>
   );
