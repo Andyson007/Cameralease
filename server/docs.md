@@ -2,7 +2,7 @@
 
 ## conventions
 
-names in \<\> are variable urls e.g. /api/history/\<id\> would match /api/history/5 and
+names in \<\> are variable urls e.g. /api/history/\<id\> would match /api/history/5
 
 ### Acronyms
 - iff: if and only if
