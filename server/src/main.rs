@@ -7,7 +7,7 @@ use std::{
     io::{BufWriter, Write},
     path::{Path, PathBuf},
     sync::Mutex,
-    time::SystemTime,
+    time::{Duration, SystemTime},
 };
 
 use once_cell::sync::Lazy;
@@ -205,7 +205,7 @@ async fn reserve(data: Json<ReservationInput>) -> Result<Response<Camera>> {
 #[derive(Debug, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct Lease {
-    start: u32,
+    start: Option<u32>,
     end: Option<u32>,
     uid: u32,
     user: String,
@@ -222,40 +222,146 @@ async fn lease(
     {
         return Ok((Status::BadRequest, Some("Leased name doesn't match regex.")));
     }
-    match data.end {
-        Some(end) => {
-            {
-                let mut val = CAMERAS.lock().unwrap();
-                let camera = match val.get_mut(&data.uid) {
-                    None => return Ok((Status::BadRequest, Some("Uid out of bounds"))),
-                    Some(x) => x,
-                };
-                camera.distribution = None;
-            }
-            let uid = data.uid as u32;
-            sqlx::query!(
-                "INSERT INTO posts (camid, starttime, endtime, name) VALUES (?, ?, ?, ?) RETURNING id",
-                uid,
-                data.start,
-                end,
-                data.user)
-            .fetch(&mut **db)
-            .try_collect::<Vec<_>>()
-            .await?;
-        }
-        None => {
+
+    if let (Some(start), Some(end)) = (data.start, data.end) {
+        {
             let mut val = CAMERAS.lock().unwrap();
             let camera = match val.get_mut(&data.uid) {
                 None => return Ok((Status::BadRequest, Some("Uid out of bounds"))),
                 Some(x) => x,
             };
-            if (*camera).distribution.is_some() {
-                return Ok((Status::Conflict, Some("Camera already leased")));
-            }
-            camera.distribution = Some((data.start, data.user.clone()));
+            camera.distribution = None;
         }
+        let uid = data.uid as u32;
+        sqlx::query!(
+            "INSERT INTO posts (camid, starttime, endtime, name) VALUES (?, ?, ?, ?) RETURNING id",
+            uid,
+            start,
+            end,
+            data.user
+        )
+        .fetch(&mut **db)
+        .try_collect::<Vec<_>>()
+        .await?;
+        Ok((Status::Accepted, Some("Accepted")))
+    } else {
+        return Ok((
+            Status::BadRequest,
+            Some("You need to supply both start and end"),
+        ));
     }
-    Ok((Status::Accepted, Some("Accepted")))
+}
+
+#[post("/lease/start", data = "<data>")]
+async fn start_lease(data: Json<Lease>) -> Result<(Status, &'static str)> {
+    if !Regex::new("^[\\w\\s\\-]*$")
+        .unwrap()
+        .is_match(data.user.as_str())
+    {
+        return Ok((Status::BadRequest, "Leased name doesn't match regex."));
+    }
+
+    if let (Some(start), None) = (data.start, data.end) {
+        let mut val = CAMERAS.lock().unwrap();
+        let camera = match val.get_mut(&data.uid) {
+            None => return Ok((Status::BadRequest, "Uid out of bounds")),
+            Some(x) => x,
+        };
+        if (*camera).distribution.is_some() {
+            return Ok((Status::Conflict, "Camera already leased"));
+        }
+        camera.distribution = Some((start, data.user.clone()));
+        Ok((Status::Accepted, "Accepted"))
+    } else {
+        return Ok((Status::BadRequest, "You need to supply start, but not end"));
+    }
+}
+
+#[post("/lease/cancel", data = "<data>")]
+async fn cancel_lease(data: Json<Lease>) -> Result<(Status, &'static str)> {
+    if !Regex::new("^[\\w\\s\\-]*$")
+        .unwrap()
+        .is_match(data.user.as_str())
+    {
+        return Ok((Status::BadRequest, "Leased name doesn't match regex."));
+    }
+
+    if let (None, None) = (data.start, data.end) {
+        let mut val = CAMERAS.lock().unwrap();
+        let camera = match val.get_mut(&data.uid) {
+            None => return Ok((Status::BadRequest, "Uid out of bounds")),
+            Some(x) => x,
+        };
+        if let Some(x) = &(*camera).distribution {
+            let timeout = 60 * 5;
+            let duration = SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH + Duration::from_secs(x.0 as u64));
+            if let Ok(x) = duration {
+                if x.as_secs() > timeout {
+                    return Ok((
+                        Status::Conflict,
+                        "Time expiration surpassed",
+                    ));
+                }
+            } else {
+                    return Ok((
+                        Status::BadRequest,
+                        "Lease in future",
+                    ));
+            }
+        } else {
+            return Ok((
+                Status::Conflict,
+                "Can't cancel a lease that hasn't been started",
+            ));
+        }
+
+        camera.distribution = None;
+        Ok((Status::Accepted, "Accepted"))
+    } else {
+        return Ok((Status::BadRequest, "You shouldn't specify start nor end"));
+    }
+}
+
+#[post("/lease/end", data = "<data>")]
+async fn end_lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<(Status, &'static str)> {
+    if !Regex::new("^[\\w\\s\\-]*$")
+        .unwrap()
+        .is_match(data.user.as_str())
+    {
+        return Ok((Status::BadRequest, "Leased name doesn't match regex."));
+    }
+
+    if let (None, Some(end)) = (data.start, data.end) {
+        let start;
+        {
+            let mut val = CAMERAS.lock().unwrap();
+            let camera = match val.get_mut(&data.uid) {
+                None => return Ok((Status::BadRequest, "Uid out of bounds")),
+                Some(x) => x,
+            };
+            if let Some(x) = &(*camera).distribution {
+                start = x.0;
+            } else {
+                return Ok((Status::Conflict, "Can't stop lease that hasn't started"));
+            }
+            camera.distribution = None;
+        }
+        let uid = data.uid as u32;
+        sqlx::query!(
+            "INSERT INTO posts (camid, starttime, endtime, name) VALUES (?, ?, ?, ?) RETURNING id",
+            uid,
+            start,
+            end,
+            data.user
+        )
+        .fetch(&mut **db)
+        .try_collect::<Vec<_>>()
+        .await?;
+        Ok((Status::Accepted, "Accepted"))
+    } else {
+        return Ok((Status::BadRequest, "You need to supply end, but not end"));
+    }
 }
 
 #[get("/<path..>", rank = 13)]
@@ -546,7 +652,18 @@ pub fn stage() -> AdHoc {
             .mount(
                 "/api",
                 routes![
-                    cams, lease, history, reserve, get_name, get_camid, dates, get_date, cancel,
+                    cams,
+                    lease,
+                    start_lease,
+                    end_lease,
+                    cancel_lease,
+                    history,
+                    reserve,
+                    get_name,
+                    get_camid,
+                    dates,
+                    get_date,
+                    cancel,
                     history_id
                 ],
             )
