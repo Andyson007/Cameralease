@@ -554,7 +554,7 @@ async fn main() {
             .get("cameras")
             .expect(format!("No field cameras in {state_file}").as_str())
             .as_array()
-            .unwrap()
+            .expect("cameras isn't an array")
             .iter()
             .map(|x| {
                 let obj = x.as_object().unwrap();

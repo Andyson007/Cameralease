@@ -157,7 +157,6 @@ A single json object with:
 
 ### Response
 201(Created) on a successful lease creating  
-409(Conflict) if the camera is currently leased  
 400(Bad Request) on bad input  
 404(Not found) (generic) if the fields aren't what they are supposed to be  
 
@@ -171,7 +170,7 @@ A single json object with:
 
 ### Response
 201(Created) on a successful lease ending  
-409(Conflict) if the camera is currently leased  
+409(Conflict) if the camera isn't currently leased  
 400(Bad Request) on bad input  
 404(Not found) (generic) if the fields aren't what they are supposed to be  
 
