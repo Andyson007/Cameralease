@@ -39,7 +39,7 @@ export function CameraList ({alertBox}: {alertBox: (title:string, body:string)=>
           console.log(parsed);
           if (!(parsed instanceof Array)) setError(500);
 
-          parsed.sort((a: camsType, b: camsType)=>a.model.localeCompare(b.name))
+          parsed.sort((a: camsType, b: camsType)=>a.name.localeCompare(b.name))
           setCams(parsed);
 
           console.log(cams);
