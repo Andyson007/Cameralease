@@ -103,8 +103,8 @@ A single Json object in the form:
 - user: string | name of the person that is reserving
 
 #### Response
-Failure: Returns a 400 with text/plain explaining the error on a bad request. 
-Success: Returns a 202 with application/json with the updated camera in the form
+Failure: Returns a 400(Bad Request) with text/plain explaining the error on a bad request. 
+Success: Returns a 202(Accepted) with application/json with the updated camera in the form
 - name: string | The name of the camera
 - model: string | The model of the camera
 - uid: number | id of the current camera (unique)
@@ -128,15 +128,15 @@ A single Json object in the form:
 This needs to be an exact match to the reservation that is the targeted for deletion
 
 #### Response
-Failure: Returns a 400 with text/plain explaining the error on a bad request. 
-Success: Returns a 202 with null with the updated camera in the form
+Failure: Returns a 400(Bad Request) with text/plain explaining the error on a bad request. 
+Success: Returns a 202(Accepted) with null with the updated camera in the form
 
 ### /api/lease
 Writes full leases to the DB
 
-Returns a 202 on a Success 
-Returns a 404 if the input doesn't match the Expected input (see below)
-Returns a 400 on any input discrepancies.
+Returns a 202(Accepted) on a Success 
+Returns a 404(Not found) if the input doesn't match the Expected input (see below)
+Returns a 400(Bad Request) on any input discrepancies.
 
 This function sets starttime and user for /api/cams
 
@@ -156,10 +156,10 @@ A single json object with:
 - user: string | name of the person that is leasing
 
 ### Response
-201 on a successful lease creating
-409 if the camera is currently leased
-400 on bad input
-404 (generic) if the fields aren't what they are supposed to be
+201(Created) on a successful lease creating
+409(Conflict) if the camera is currently leased
+400(Bad Request) on bad input
+404(Not found) (generic) if the fields aren't what they are supposed to be
 
 ### /api/lease/end
 Ends a lease
@@ -170,10 +170,10 @@ A single json object with:
 - uid: number | The id of the camera to be leased
 
 ### Response
-201 on a successful lease ending
-409 if the camera is currently leased
-400 on bad input
-404 (generic) if the fields aren't what they are supposed to be
+201(Created) on a successful lease ending
+409(Conflict) if the camera is currently leased
+400(Bad Request) on bad input
+404(Not found) (generic) if the fields aren't what they are supposed to be
 
 ### /api/lease/cancel
 Cancels a lease
@@ -185,7 +185,7 @@ A single json object with:
 - uid: number | The id of the camera to be leased
 
 ### Response
-201 on a successful lease ending
-409 if the camera is currently leased
-400 on bad input
-404 (generic) if the fields aren't what they are supposed to be
+201(Created) on a successful lease ending
+409(Conflict) if the camera is currently leased
+400(Bad Request) on bad input
+404(Not found) (generic) if the fields aren't what they are supposed to be
