@@ -250,7 +250,7 @@ async fn lease(
                 Some(x) => x,
             };
             if (*camera).distribution.is_some() {
-                return Ok((Status::BadRequest, Some("Camera already leased")));
+                return Ok((Status::Conflict, Some("Camera already leased")));
             }
             camera.distribution = Some((data.start, data.user.clone()));
         }
@@ -265,6 +265,32 @@ async fn files(path: PathBuf) -> Option<NamedFile> {
         path.push("index.html");
     }
     NamedFile::open(path).await.ok()
+}
+
+#[get("/history/<id>")]
+async fn history_id(id: u32, mut db: Connection<Db>) -> Option<Json<Entry>> {
+    sqlx::query!(
+        "SELECT id, camid, starttime, endtime, name FROM posts WHERE id=?",
+        id
+    )
+    .fetch_one(&mut **db)
+    .map_ok(|r| {
+        Json(Entry {
+            id: Some(r.id),
+            camid: r.camid,
+            starttime: match &r.starttime {
+                Some(x) => Some(*x as u32),
+                None => None,
+            },
+            endtime: match &r.endtime {
+                Some(x) => Some(*x as u32),
+                None => None,
+            },
+            name: r.name.clone(),
+        })
+    })
+    .await
+    .ok()
 }
 
 #[get("/history")]
@@ -519,7 +545,10 @@ pub fn stage() -> AdHoc {
             .attach(AdHoc::try_on_ignite("SQLx Migrations", run_migrations))
             .mount(
                 "/api",
-                routes![cams, lease, history, reserve, get_name, get_camid, dates, get_date, cancel],
+                routes![
+                    cams, lease, history, reserve, get_name, get_camid, dates, get_date, cancel,
+                    history_id
+                ],
             )
     })
 }
