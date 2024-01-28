@@ -18,7 +18,8 @@ import CameraCard from "./CameraCard";
 
 export type camsType = { name: string, model: string, uid: number, reservations: {start: number, end: number, user: string}[], starttime: number | undefined, user: string | undefined }
 
-export function CameraList () {
+export function CameraList ({alertBox}: {alertBox: (title:string, body:string)=>void}) {
+
   const [cams, setCams] = useState<camsType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<number>(0);
@@ -46,6 +47,7 @@ export function CameraList () {
           return "";
         }
         catch (e) {
+          alertBox("Internal server error (500)", "Please contact the dev team about this.");
           setError(500);
           return "";
         }
@@ -57,7 +59,7 @@ export function CameraList () {
   return (
     <div id="cameralist">
       {/*error === 0 ? */ (error ? "Loading..." : cams.map(f => {
-          return (<CameraCard key={f.uid} reload={()=>setReload(true)} name={f.name} model={f.model} uid={f.uid} reservations={f.reservations} user={f.user || null} starttime={f.starttime || null} />)})) /*: `error: ${error}`*/}
+          return (<CameraCard key={f.uid} reload={()=>setReload(true)} name={f.name} model={f.model} uid={f.uid} reservations={f.reservations} user={f.user || null} starttime={f.starttime || null} alertBox={alertBox} />)})) /*: `error: ${error}`*/}
     </div>
   );
 }

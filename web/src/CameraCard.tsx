@@ -2,21 +2,27 @@ import { useEffect, useState } from "react";
 import "./CameraCard.scss";
 import TimeLine from "./TimeLine";
 
-export default function CameraCard ({name, model, uid, user, starttime, reservations, reload}:{name:string, model:string, uid:number, user: string | null, starttime: number | null, reservations: {start: number, end: number, user: string}[], reload: ()=>void}) {
+export default function CameraCard ({name, model, uid, user, starttime, reservations, reload, alertBox}:{name:string, model:string, uid:number, user: string | null, starttime: number | null, reservations: {start: number, end: number, user: string}[], reload: ()=>void, alertBox: (title:string, body:string)=>void}) {
   const [ddopen, setDDOpen] = useState(false);
   const [timestart, setTimestart] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [nowDate, setNowDate] = useState(new Date());
   const [fromDate] = useState(new Date());
   const [toDate, setToDate] = useState<Date | null>(new Date());
   const [username, setUsername] = useState("");
 
   const timeSpan = [25200, 54000]; // Times of day in seconds since midnight UTC (-3600000 for UTC+1)
 
-  let nowDate = new Date();
   let midnightTime = 0;
 
+  useEffect(() => {
+    if (starttime && user && starttime != null && !reservations.find((v) => v.start == starttime)) {
+      reservations.push({start: starttime, end: Math.floor(nowDate.getTime()/1000), user: user})
+    }
+  }, [reservations, nowDate]);
+
   function updatetimes() {
-    nowDate = new Date();
+    setNowDate(new Date());
     let currentTime = nowDate.getTime() * 0.001;
     midnightTime = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(),0,0,0).getTime() * 0.001; // Midnight today
     
@@ -25,6 +31,9 @@ export default function CameraCard ({name, model, uid, user, starttime, reservat
   }
 
   async function reserveOrLease () {
+    if (starttime) {
+      // Cancel previous
+    }
     if (toDate) {
       const messagebody = {
         start: Math.floor(fromDate.getTime() / 1000),

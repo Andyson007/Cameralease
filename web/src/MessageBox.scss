@@ -1,0 +1,47 @@
+.messagebox {
+  overflow: hidden;
+  height: 0px;
+  padding: 0px;
+
+  background-color: #ffffff;
+  border-radius: 1em;
+  width: fit-content;
+
+  transition: padding .25s ease;
+
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+
+  display: flex;
+  flex-direction: column;
+  gap: .5em;
+
+  h2 {
+    margin: 0px;
+  }
+
+  p {
+    margin: 0px;
+  }
+
+  button {
+    width: fit-content;
+    background-color: #efefef;
+    border: 2px solid #000000;
+    border-radius: .75em;
+    padding: .5em;
+
+    cursor: pointer;
+
+    &:active {
+      background-color: #dfdfdf;
+    }
+  }
+
+  &.shown {
+    padding: 1em;
+    height: fit-content;
+  }
+}
