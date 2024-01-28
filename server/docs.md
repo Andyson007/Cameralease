@@ -2,8 +2,7 @@
 
 ## conventions
 
-names in \<\> are variable urls e.g. /api/history/\<id\> would match /api/history/5 and
-Times are given in epoch time in seconds
+names in \<\> are variable urls e.g. /api/history/\<id\> would match /api/history/5
 
 ### Acronyms
 - iff: if and only if
