@@ -1,24 +1,28 @@
 {
   "cameras": [
     {
-      "model": "model_sample1",
-      "name": "Name_sample1",
-      "reservations": [],
-      "uid": 1
-    },
-    {
       "model": "model_samp0",
       "name": "Name_samp0",
-      "reservations": [],
-      "starttime": 12312313,
-      "uid": 0,
-      "user": "Andy0"
+      "reservations": [
+        {
+          "end": 1706448320,
+          "start": 1706442600,
+          "user": "Andy"
+        }
+      ],
+      "uid": 0
     },
     {
       "model": "model_sample2",
       "name": "Name_sample2",
       "reservations": [],
       "uid": 2
+    },
+    {
+      "model": "model_sample1",
+      "name": "Name_sample1",
+      "reservations": [],
+      "uid": 1
     }
   ]
 }
