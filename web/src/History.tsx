@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import TimeLine from "./TimeLine";
 import "./History.scss"
 
-type camsType = { name: string, model: string, uid: string | number, reservations: {start: number, end: number, user: string}[], starttime: number | undefined, user: string | undefined }
+type camsType = { name: string, model: string, uid: number | number, reservations: { start: number, end: number, user: string }[], starttime: number | undefined, user: string | undefined }
 type leaseType = { name: string, id: number, camid: number, starttime: number, endtime: number }
 
+
 export function HistoryPage() {
-  const [cams, setCams] = useState<camsType[]>([{name: "Loading...", model: "N/A", uid: "ffff", reservations: [], starttime: undefined, user: undefined}]);
+  const [cams, setCams] = useState<camsType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<number>(0);
 
@@ -43,18 +44,7 @@ export function HistoryPage() {
   }, [loading, cams]);
   const [tab, setTab] = useState(1);
   return (
-    <div>
-      {
-        // <nav>
-        //   {
-        //     cams.map(f =>
-        //       <button type="button" id={`${f.uid}`} onClick={() => changeTab(f.uid)}>{f.name}</button>
-        //     )
-        //   }
-        // </nav>
-      }
-      <HistoryList camid={tab} cams={cams} />
-    </div>
+    <HistoryList camid={tab} cams={cams} />
   )
 
   function changeTab(newtab: number) {
@@ -76,15 +66,23 @@ function HistoryCard({ entries, cam }: { entries: leaseType[], cam: camsType }) 
   const textTimeSpan = dateTimeSpan.map(f => f.toLocaleTimeString("no-NB", { timeStyle: "short" })); // turn it into text (military time)
 
   return (
-    <div className="historyCard">
+    <div className={`historyCard historyCard${cam.uid}`}>
       <div className="predropdown" onClick={revealDropDown}>
         <p className="left">{cam.name}</p>
         <div className="historytimeline">
           <TimeLine timeSpan={timeSpan} progress={undefined} textVis={false} timeLineSpans={entries.map(f => {
+            console.log(
+              {
+                "start": f.starttime,
+                "length": f.endtime - f.starttime,
+                "label": `${f.name}: ${new Date(f.starttime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
+              }, timeSpan
+
+            )
             return {
-              "start": f.starttime % 86400 - timeSpan[0],
-              "length": (f.endtime - f.starttime) % 86400,
-              "label": `${f.name}: ${new Date(f.starttime*1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime*1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
+              "start": f.starttime,
+              "length": (f.endtime - f.starttime),
+              "label": `${f.name}: ${new Date(f.starttime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
             }
           })} />
         </div>
@@ -100,12 +98,12 @@ function HistoryCard({ entries, cam }: { entries: leaseType[], cam: camsType }) 
               entries.map(f => {
                 return <tr className="historyEntry">
                   <td>{f.name}</td>
-                  <td className="historytimeline" title={`${f.name}: ${new Date(f.starttime*1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime*1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`}>
+                  <td className="historytimeline" title={`${f.name}: ${new Date(f.starttime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`}>
                     <TimeLine timeSpan={timeSpan} progress={undefined} textVis={false} timeLineSpans={[
                       {
-                        "start": f.starttime % 86400 - timeSpan[0] ,
-                        "length": (f.endtime - f.starttime) % 86400,
-                        "label": `${new Date(f.starttime*1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime*1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
+                        "start": f.starttime,
+                        "length": f.endtime - f.starttime,
+                        "label": `${new Date(f.starttime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
                       }
                     ]} />
                   </td>
@@ -157,8 +155,32 @@ function HistoryList({ camid, cams }: { camid: number, cams: camsType[] }) {
     });
   }, [loading]);
 
+  cams = JSON.parse('[{"name":"Name_sample2","model":"model_sample2","uid":2,"reservations":[]},{"name":"Name_samp0","model":"model_samp0","uid":0,"reservations":[]},{"name":"Name_sample1","model":"model_sample1","uid":1,"reservations":[]}]');
+
+  function updateShown(uid: number) {
+    const item = document.getElementById(`cameraSelection${uid}`);
+    if (item?.classList.contains("active")) {
+      item.classList.add("inactive")
+      item.classList.remove("active")
+      const tohide = document.getElementsByClassName(`historyCard${uid}`);
+      for (let i = 0; i < tohide.length; i++) {
+        tohide[i].classList.add("hidden");
+
+      }
+
+    } else if (item?.classList.contains("inactive")) {
+      item.classList.add("active")
+      item.classList.remove("inactive")
+      const toshow = document.getElementsByClassName(`historyCard${uid}`);
+      for (let i = 0; i < toshow.length; i++) {
+        toshow[i].classList.remove("hidden");
+      }
+    }
+  }
+
   return (
     <div className="split">
+      <CameraList cams={cams} />
       <div className="historylist">
         {
           dates.map(f => {
@@ -173,7 +195,22 @@ function HistoryList({ camid, cams }: { camid: number, cams: camsType[] }) {
       </ol>
     </div>
   )
+
+  function CameraList({ cams }: { cams: camsType[] }) {
+    cams.sort((a: camsType, b: camsType) => a.name.localeCompare(b.name));
+    return (
+      <ol className="cameraSelection">
+        {
+          cams.map(f => (
+            <li title={f.model} id={`cameraSelection${f.uid}`} className="active" onClick={() => updateShown(f.uid)}>{f.name}</li>
+          )
+          )
+        }
+      </ol>
+    )
+  }
 }
+
 
 function HistoryDate({ date, cams }: { date: string, cams: camsType[] }) {
   const [leases, setLeases] = useState<leaseType[]>([]);
@@ -206,7 +243,7 @@ function HistoryDate({ date, cams }: { date: string, cams: camsType[] }) {
       }
       );
     });
-  }, [loading]);
+  }, [loading, date]);
   const map = new Map();
   leases.forEach(f => {
     let topush;
@@ -219,16 +256,16 @@ function HistoryDate({ date, cams }: { date: string, cams: camsType[] }) {
     map.set(f.camid, topush)
   });
   return (
-    <div id={date} className="historylist">
+    <div id={date} className="historylist historysublist">
       <h2>{date}</h2>
       {
         Array.from(map.keys()).map(f => {
-          let entry = map.get(f);
-          let cam = cams.find(c => {
+          const entry = map.get(f);
+          const cam = cams.find(c => {
             return c.uid == entry[0].camid;
           });
           if (cam == undefined) {
-            return (<p>Can't find camid {entry.camid}</p>)
+            return (<div />)
           }
           return (<HistoryCard entries={entry} cam={cam} />)
         })
