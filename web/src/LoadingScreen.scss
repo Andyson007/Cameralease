@@ -1,5 +1,5 @@
-$sw: min(3vw, .5em);
-$w: min(6vw, 1em);
+$sw: min(1.5vw, .25em);
+$w: min(3vw, .5em);
 $sh: min(6vw, 1em);
 $h: min(24vw, 4em);
 
@@ -20,6 +20,7 @@ $h: min(24vw, 4em);
   animation: infinite 1s load;
   width: $w;
   background-color: #000000;
+  border-radius: $sw;
 }
 
 @keyframes load {

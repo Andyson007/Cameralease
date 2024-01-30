@@ -7,11 +7,11 @@ export default function Header() {
     <div className="outerheader">
       <header>
         <Logo />
-        <h1>camera lease dashboard - Kuben IM</h1>
+        <h1>Utlån av kamera - Kuben IM</h1>
       </header>
       <nav>
-        <Link className="linkbtn" to="/">Home</Link>
-        <Link className="linkbtn" to="/history">History</Link>
+        <Link className="linkbtn" to="/">Oversikt</Link>
+        <Link className="linkbtn" to="/history">Historikk</Link>
       </nav>
     </div>
   );

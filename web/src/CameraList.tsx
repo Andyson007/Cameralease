@@ -19,7 +19,7 @@ import LoadingScreen from "./LoadingScreen";
 
 export type camsType = { name: string, model: string, uid: number, reservations: {start: number, end: number, user: string}[], starttime: number | undefined, user: string | undefined }
 
-export function CameraList ({alertBox}: {alertBox: (title:string, body:string)=>void}) {
+export function CameraList ({alertBox, promptBox}: {alertBox: (title:string, body:string)=>void; promptBox: (title: string, body: string, answers: string[]) => Promise<string>}) {
 
   const [cams, setCams] = useState<camsType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -27,7 +27,7 @@ export function CameraList ({alertBox}: {alertBox: (title:string, body:string)=>
   const [reload, setReload] = useState(false);
 
   useEffect(() => {
-    fetch("/api/cams").then(resp => {
+    fetch(`/api/cams`).then(resp => {
       if (!resp.ok) {
         setError(resp.status);
         return;
@@ -61,7 +61,7 @@ export function CameraList ({alertBox}: {alertBox: (title:string, body:string)=>
   return (
     <div id="cameralist">
       {/*error === 0 ? */ (error ? <LoadingScreen /> : cams.map(f => {
-          return (<CameraCard key={f.uid} reload={()=>setReload(true)} name={f.name} model={f.model} uid={f.uid} reservations={f.reservations} user={f.user || null} starttime={f.starttime || null} alertBox={alertBox} />)})) /*: `error: ${error}`*/}
+          return (<CameraCard key={f.uid} reload={()=>setReload(true)} name={f.name} model={f.model} uid={f.uid} reservations={f.reservations} user={f.user || null} starttime={f.starttime || null} alertBox={alertBox} promptBox={promptBox} />)})) /*: `error: ${error}`*/}
     </div>
   );
 }

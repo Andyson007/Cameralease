@@ -42,6 +42,8 @@
 }
 
 .graybackdrop {
+  z-index: 3;
+
   &:has(.messagebox:not(.shown)) {
     background-color: #00000000;
     height: 0px;

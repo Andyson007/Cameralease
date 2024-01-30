@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import "./CameraCard.scss";
 import TimeLine from "./TimeLine";
 
-export default function CameraCard ({name, model, uid, user, starttime, reservations, reload, alertBox}:{name:string, model:string, uid:number, user: string | null, starttime: number | null, reservations: {start: number, end: number, user: string}[], reload: ()=>void, alertBox: (title:string, body:string)=>void}) {
+export default function CameraCard ({name, model, uid, user, starttime, reservations, reload, alertBox, promptBox}:{name:string, model:string, uid:number, user: string | null, starttime: number | null, reservations: {start: number, end: number, user: string}[], reload: ()=>void, alertBox: (title:string, body:string)=>void; promptBox: (title: string, body: string, answers: string[]) => Promise<string>}) {
   const [ddopen, setDDOpen] = useState(false);
-  const [timestart, setTimestart] = useState(0);
   const [progress, setProgress] = useState(0);
   const [nowDate, setNowDate] = useState(new Date());
   const [fromDate] = useState(new Date());
   const [toDate, setToDate] = useState<Date | null>(new Date());
   const [username, setUsername] = useState("");
+  const [state, setState] = useState(0);
 
   const timeSpan = [25200, 54000]; // Times of day in seconds since midnight UTC (-3600000 for UTC+1)
 
@@ -33,6 +33,16 @@ export default function CameraCard ({name, model, uid, user, starttime, reservat
   async function reserveOrLease () {
     if (starttime) {
       // Cancel previous
+      const ans = await promptBox("Vil du avbryte", "Bare gjør dette hvis kameraet ikke er i bruk", ["Ja", "Nei"]);
+      console.log(ans);
+      if (ans == "Ja") {
+        console.log("sjalskjg");
+        // End lease
+        const messagebody = {
+          
+        }
+      }
+      return;
     }
     if (toDate) {
       const messagebody = {
@@ -63,8 +73,16 @@ export default function CameraCard ({name, model, uid, user, starttime, reservat
     };
   }, []);
 
+  useEffect(() => {
+    const rightnow = nowDate.getTime()/1000;
+    reservations.forEach((s) => {
+      if (s.start < rightnow && s.end > rightnow) setState(1);
+      else setState(2);
+    });
+  }, [reservations, Math.floor(nowDate.getTime()/6000)]);
+
   return (
-    <div className={`cameracard ${timestart === 0 ? "loading" : (timestart === undefined ? "available" : "unavailable")}`}>
+    <div className={`cameracard ${state == 0 ? "available" : "unavailable"}`}>
       <div className="notdropdown" onClick={revealDropDown}>
         <div className="camcardleft"></div>
         <div className="camcardright">
@@ -77,8 +95,8 @@ export default function CameraCard ({name, model, uid, user, starttime, reservat
 
         {/* TIME & DATE RESERVATION */}
         <div className="choosetimelabels">
-          <span className="grayitalics">from</span>
-          <span className="grayitalics">to</span>
+          <span className="grayitalics">fra</span>
+          <span className="grayitalics">til</span>
         </div>
         <div className="choosedatetime">
           <div className="from">
@@ -109,8 +127,7 @@ export default function CameraCard ({name, model, uid, user, starttime, reservat
                   toDate.setFullYear(parseInt(complete[0]));
                   toDate.setMonth(parseInt(complete[1])-1);
                   toDate.setDate(parseInt(complete[2]));
-                }}
-                defaultValue={`${fromDate.getFullYear()}-${(fromDate.getMonth() + 1).toString().padStart(2, "0")}-${fromDate.getDate().toString().padStart(2, "0")}`} />
+                }} />
             <input className="totime" type="time"
                 onChange={(ev) => {
                   if (!toDate) setToDate(new Date());
@@ -121,13 +138,12 @@ export default function CameraCard ({name, model, uid, user, starttime, reservat
                 }} />
           </div>
         </div>
-        <input type="text" placeholder="Reservees name"
+        <input type="text" placeholder="Reservers navn"
           onChange={(ev) => {
             console.log(ev.target.value);
             setUsername(ev.target.value);
           }}/>
-          <button className="dropdownbtn reserve" onClick={reserveOrLease}>Reserve</button>
-
+          <button className="dropdownbtn reserve" onClick={reserveOrLease}>{starttime ? "Avbryt reservasjon" : "Reserver"}</button>
         {/* DEBUG (Database camera ID) */}
         <span className="grayitalics">{uid}</span>
       </div>
