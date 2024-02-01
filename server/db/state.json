@@ -3,13 +3,7 @@
     {
       "model": "model_samp0",
       "name": "Name_samp0",
-      "reservations": [
-        {
-          "end": 1706448320,
-          "start": 1706442600,
-          "user": "Andy"
-        }
-      ],
+      "reservations": [],
       "uid": 0
     },
     {

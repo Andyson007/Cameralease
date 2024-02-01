@@ -77,11 +77,10 @@ function HistoryCard({ entries, cam }: { entries: leaseType[], cam: camsType }) 
                 "length": f.endtime - f.starttime,
                 "label": `${f.name}: ${new Date(f.starttime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
               }, timeSpan
-
             )
             return {
               "start": f.starttime,
-              "length": (f.endtime - f.starttime),
+              "length": f.endtime - f.starttime,
               "label": `${f.name}: ${new Date(f.starttime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
             }
           })} />
@@ -103,7 +102,7 @@ function HistoryCard({ entries, cam }: { entries: leaseType[], cam: camsType }) 
                       {
                         "start": f.starttime,
                         "length": f.endtime - f.starttime,
-                        "label": `${new Date(f.starttime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
+                        "label": `${f.name}: ${new Date(f.starttime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`,
                       }
                     ]} />
                   </td>
