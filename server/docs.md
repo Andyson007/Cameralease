@@ -8,6 +8,24 @@ names in \<\> are variable urls e.g. /api/history/\<id\> would match /api/histor
 - iff: if and only if
 - DB: database
 
+### Toc:
+- [GET](#get)
+    - [/api/cams](#apicams)
+    - [/api/history](#apihistory)
+    - [/api/history/<id>](#apihistoryid)
+    - [/api/<name>](#apiname)
+    - [/api/<camid>](#apicamid)
+    - [/api/date](#apidate)
+    - [/api/date/<date>](#apidatedate)
+    - [/path](#path)
+- [POST](#post)
+    - [/api/reserve](#apireserve)
+    - [/api/cancel](#apicancel)
+    - [/api/lease](#apilease)
+    - [/api/lease/start](#apileasestart)
+    - [/api/lease/end](#apileaseend)
+    - [/api/lease/cancel](#apileasecancel)
+
 ## GET
 
 ### /api/cams
