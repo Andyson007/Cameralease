@@ -76,13 +76,14 @@ export default function CameraCard({ name, model, uid, user, starttime, reservat
   useEffect(() => {
     const rightnow = nowDate.getTime() / 1000;
     reservations.forEach((s) => {
-      if (s.start < rightnow && s.end > rightnow) setState(1);
-      else setState(2);
+      if (s.start < rightnow && s.end > rightnow) setState(2);
     });
-  }, [reservations, Math.floor(nowDate.getTime() / 6000)]);
-
+  if (starttime != null) {
+    setState(1);
+  }
+  }, [starttime, reservations, Math.floor(nowDate.getTime() / 6000)]);
   return (
-    <div className={`cameracard ${state == 0 ? "available" : "unavailable"}`}>
+    <div className={`cameracard ${state === 0 ? "available" : state === 1 ? "unavailable" : "reserved"}`}>
       <div className="notdropdown" onClick={revealDropDown}>
         <div className="camcardleft"></div>
         <div className="camcardright">
