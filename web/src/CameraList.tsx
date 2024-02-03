@@ -59,7 +59,7 @@ export function CameraList ({alertBox, promptBox}: {alertBox: (title:string, bod
   }, [reload]);
 
   return (
-    <div id="cameralist">
+    <div className="cardlist">
       {/*error === 0 ? */ (error ? <LoadingScreen /> : cams.map(f => {
           return (<CameraCard key={f.uid} reload={()=>setReload(true)} name={f.name} model={f.model} uid={f.uid} reservations={f.reservations} user={f.user || null} starttime={f.starttime || null} alertBox={alertBox} promptBox={promptBox} />)})) /*: `error: ${error}`*/}
     </div>

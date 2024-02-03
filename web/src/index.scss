@@ -16,7 +16,7 @@ html, body {
   background-color: #efefef;
 }
 
-#cameralist {
+.cardlist {
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -24,6 +24,7 @@ html, body {
   background-color: #efefef;
 
   max-width: 500px;
+  width: 100vw;
 }
 
 #root {

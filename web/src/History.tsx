@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import TimeLine from "./TimeLine";
 import "./History.scss"
+import "./index.scss"
 
 type camsType = { name: string, model: string, uid: number | number, reservations: { start: number, end: number, user: string }[], starttime: number | undefined, user: string | undefined }
 type leaseType = { name: string, id: number, camid: number, starttime: number, endtime: number }
@@ -164,7 +165,6 @@ function HistoryList({ camid, cams }: { camid: number, cams: camsType[] }) {
       const tohide = document.getElementsByClassName(`historyCard${uid}`);
       for (let i = 0; i < tohide.length; i++) {
         tohide[i].classList.add("hidden");
-
       }
 
     } else if (item?.classList.contains("inactive")) {
@@ -180,7 +180,7 @@ function HistoryList({ camid, cams }: { camid: number, cams: camsType[] }) {
   return (
     <div className="split">
       <CameraList cams={cams} />
-      <div className="historylist">
+      <div className="cardlist historylist">
         {
           dates.map(f => {
             return (<HistoryDate date={f} cams={cams} />)
@@ -255,8 +255,8 @@ function HistoryDate({ date, cams }: { date: string, cams: camsType[] }) {
     map.set(f.camid, topush)
   });
   return (
-    <div id={date} className="historylist historysublist">
-      <h2>{date}</h2>
+    <div id={date} className="historysublist">
+      <span>{date}</span>
       {
         Array.from(map.keys()).map(f => {
           const entry = map.get(f);
