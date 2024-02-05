@@ -92,7 +92,7 @@ export default function CameraCard({ name, model, uid, user, starttime, reservat
         </div>
       </div>
       <div className={ddopen ? "dropdown open" : "dropdown"}>
-        <TimeLine progress={progress} timeSpan={timeSpan} textVis={true} timeLineSpans={reservations.map(r => { return { start: r.start - midnightTime, length: r.end - r.start, label: `${r.user} ${new Date(r.start * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(r.end * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}` } })} />
+        <TimeLine date={new Date()} progress={progress} timeSpan={timeSpan} textVis={true} timeLineSpans={reservations.map(r => { return { start: r.start - midnightTime, length: r.end - r.start, label: `${r.user} ${new Date(r.start * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(r.end * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}` } })} />
 
 
         {/* TIME & DATE RESERVATION */}

@@ -71,7 +71,7 @@ function HistoryCard({ entries, cam }: { entries: leaseType[], cam: camsType }) 
       <div className="predropdown" onClick={revealDropDown}>
         <p className="left">{cam.name}</p>
         <div className="historytimeline">
-          <TimeLine timeSpan={timeSpan} progress={undefined} textVis={false} timeLineSpans={entries.map(f => {
+          <TimeLine date={undefined} timeSpan={timeSpan} progress={undefined} textVis={false} timeLineSpans={entries.map(f => {
             console.log(
               {
                 "start": f.starttime,
@@ -99,7 +99,7 @@ function HistoryCard({ entries, cam }: { entries: leaseType[], cam: camsType }) 
                 return <tr className="historyEntry">
                   <td>{f.name}</td>
                   <td className="historytimeline" title={`${f.name}: ${new Date(f.starttime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(f.endtime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}`}>
-                    <TimeLine timeSpan={timeSpan} progress={undefined} textVis={false} timeLineSpans={[
+                    <TimeLine date={undefined} timeSpan={timeSpan} progress={undefined} textVis={false} timeLineSpans={[
                       {
                         "start": f.starttime,
                         "length": f.endtime - f.starttime,
