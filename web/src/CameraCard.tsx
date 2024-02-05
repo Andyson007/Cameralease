@@ -30,6 +30,30 @@ export default function CameraCard({ name, model, uid, user, starttime, reservat
     setProgress(prog);
   }
 
+  async function stopStartLease() {
+    if (username === "") {
+        alertBox("Send inn?", "Brukernavnet er tomt");
+        return;
+    }
+    if (starttime) {
+      const messagebody = {
+        end: Math.floor(new Date().getTime() / 1000),
+        uid: uid,
+      }
+      const resp = await fetch("/api/lease/end", { body: JSON.stringify(messagebody), method: "POST" });
+      console.log(resp, resp.status, resp.text());
+    } else {
+      const messagebody = {
+        start: Math.floor(new Date().getTime() / 1000),
+        user: username,
+        uid: uid,
+      }
+      const resp = await fetch("/api/lease/start", { body: JSON.stringify(messagebody), method: "POST" });
+      console.log(resp, resp.status, resp.text());
+    }
+    reload();
+  }
+
   async function reserveOrLease() {
     if (starttime) {
       // Cancel previous
@@ -78,9 +102,9 @@ export default function CameraCard({ name, model, uid, user, starttime, reservat
     reservations.forEach((s) => {
       if (s.start < rightnow && s.end > rightnow) setState(2);
     });
-  if (starttime != null) {
-    setState(1);
-  }
+    if (starttime != null) {
+      setState(1);
+    }
   }, [starttime, reservations, Math.floor(nowDate.getTime() / 6000)]);
   return (
     <div className={`cameracard ${state === 0 ? "available" : state === 1 ? "unavailable" : "reserved"}`}>
@@ -145,7 +169,10 @@ export default function CameraCard({ name, model, uid, user, starttime, reservat
             console.log(ev.target.value);
             setUsername(ev.target.value);
           }} />
-        <button className="dropdownbtn reserve" onClick={reserveOrLease}>{starttime ? "Avbryt reservasjon" : "Reserver"}</button>
+        <div className="buttons">
+          <button className="dropdownbtn reserve" onClick={reserveOrLease}>{starttime ? "Avbryt reservasjon" : "Reserver"}</button>
+          <button className="dropdownbtn lease" onClick={stopStartLease}>{starttime ? "Stopp utlån" : "lån ut"}</button>
+        </div>
         {/* DEBUG (Database camera ID) */}
         <span className="grayitalics">{uid}</span>
       </div>

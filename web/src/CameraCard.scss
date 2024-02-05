@@ -89,22 +89,31 @@
       flex-direction: row;
       justify-content: space-between;
     }
-
-    .dropdownbtn {
-      color: #ffffff;
-      border-radius: 3px;
-      border: none;
-      padding: 8px;
-      cursor: pointer;
-      
-      font-weight: 500;
-
-      width: fit-content;
-  
-      &.reserve {
-        background-color: #ef6f6f;
-        &:hover { background-color: #df5f5f; }
-        &:active { background-color: #cf4f4f; }
+    .buttons {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      .dropdownbtn {
+        border-radius: 3px;
+        border: none;
+        padding: 8px;
+        cursor: pointer;
+        
+        font-weight: 500;
+        width: fit-content;
+    
+        &.reserve {
+          background-color: #ef6f6f;
+          &:hover { background-color: #df5f5f; }
+          &:active { background-color: #cf4f4f; }
+          color: #ffffff;
+        }
+        &.lease {
+          background-color: #6fef6f;
+          color: #000000;
+          &:hover { background-color: #5fdf5f; }
+          &:active { background-color: #4fcf4f; }
+        }
       }
     }
   }
