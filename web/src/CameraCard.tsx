@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import "./CameraCard.scss";
 import TimeLine from "./TimeLine";
 
 export default function CameraCard({ name, model, uid, user, starttime, reservations, reload, alertBox, promptBox }: { name: string, model: string, uid: number, user: string | null, starttime: number | null, reservations: { start: number, end: number, user: string }[], reload: () => void, alertBox: (title: string, body: string) => void; promptBox: (title: string, body: string, answers: string[]) => Promise<string> }) {
   const [ddopen, setDDOpen] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [nowDate, setNowDate] = useState(new Date());
   const [fromDate] = useState(new Date());
   const [toDate, setToDate] = useState<Date | null>(new Date());
   const [username, setUsername] = useState("");
@@ -15,26 +14,17 @@ export default function CameraCard({ name, model, uid, user, starttime, reservat
 
   let midnightTime = 0;
 
-  useEffect(() => {
-    if (starttime && user && starttime != null && !reservations.find((v) => v.start == starttime)) {
-      reservations.push({ start: starttime, end: Math.floor(nowDate.getTime() / 1000), user: user })
-    }
-  }, [reservations, nowDate]);
-
   function updatetimes() {
-    setNowDate(new Date());
-    let currentTime = nowDate.getTime() * 0.001;
-    midnightTime = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0, 0).getTime() * 0.001; // Midnight today
+    console.log("nowdate", new Date())
+    let currentTime = new Date().getTime() * 0.001;
+    midnightTime = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), 0, 0, 0).getTime() * 0.001; // Midnight today
 
-    let prog = (currentTime - midnightTime - Math.min(...timeSpan) + nowDate.getTimezoneOffset() * 60) / (Math.max(...timeSpan) - Math.min(...timeSpan)) * 100
+    let prog = (currentTime - midnightTime - Math.min(...timeSpan) + new Date().getTimezoneOffset() * 60) / (Math.max(...timeSpan) - Math.min(...timeSpan)) * 100
     setProgress(prog);
+
   }
 
   async function stopStartLease() {
-    if (username === "") {
-        alertBox("Send inn?", "Brukernavnet er tomt");
-        return;
-    }
     if (starttime) {
       const messagebody = {
         end: Math.floor(new Date().getTime() / 1000),
@@ -43,6 +33,10 @@ export default function CameraCard({ name, model, uid, user, starttime, reservat
       const resp = await fetch("/api/lease/end", { body: JSON.stringify(messagebody), method: "POST" });
       console.log(resp, resp.status, resp.text());
     } else {
+      if (username === "") {
+        alertBox("Send inn?", "Brukernavnet er tomt, skriv vennsigst inn ett brukernavn");
+        return;
+      }
       const messagebody = {
         start: Math.floor(new Date().getTime() / 1000),
         user: username,
@@ -98,14 +92,14 @@ export default function CameraCard({ name, model, uid, user, starttime, reservat
   }, []);
 
   useEffect(() => {
-    const rightnow = nowDate.getTime() / 1000;
+    const rightnow = new Date().getTime() / 1000;
     reservations.forEach((s) => {
       if (s.start < rightnow && s.end > rightnow) setState(2);
     });
     if (starttime != null) {
       setState(1);
     }
-  }, [starttime, reservations, Math.floor(nowDate.getTime() / 6000)]);
+  }, [starttime, reservations, Math.floor(new Date().getTime() / 6000)]);
   return (
     <div className={`cameracard ${state === 0 ? "available" : state === 1 ? "unavailable" : "reserved"}`}>
       <div className="notdropdown" onClick={revealDropDown}>
@@ -116,7 +110,7 @@ export default function CameraCard({ name, model, uid, user, starttime, reservat
         </div>
       </div>
       <div className={ddopen ? "dropdown open" : "dropdown"}>
-        <TimeLine date={new Date()} progress={progress} timeSpan={timeSpan} textVis={true} timeLineSpans={reservations.map(r => { return { start: r.start - midnightTime, length: r.end - r.start, label: `${r.user} ${new Date(r.start * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(r.end * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}` } })} />
+        <TimeLine date={new Date()} progress={progress} timeSpan={timeSpan} textVis={true} timeLineSpans={reservations.map(r => { return { start: r.start - midnightTime, length: r.end - r.start, label: `${r.user} ${new Date(r.start * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}-${new Date(r.end * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}` } }).concat(starttime && user ? [{ start: starttime, length: new Date().getTime() / 1000 - starttime, label: `${user}: ${new Date(starttime * 1000).toLocaleTimeString("no-NB", { timeStyle: "short" })}` }] : [])} />
 
 
         {/* TIME & DATE RESERVATION */}
@@ -134,7 +128,7 @@ export default function CameraCard({ name, model, uid, user, starttime, reservat
                 fromDate.setDate(parseInt(complete[2]));
               }}
               defaultValue=
-              {`${nowDate.getFullYear()}-${(nowDate.getMonth() + 1).toString().padStart(2, "0")}-${nowDate.getDate().toString().padStart(2, "0")}`} />
+              {`${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, "0")}-${new Date().getDate().toString().padStart(2, "0")}`} />
             <input className="fromtime" type="time"
               onChange={(ev) => {
                 let complete = ev.target.value.split(':');
@@ -142,7 +136,7 @@ export default function CameraCard({ name, model, uid, user, starttime, reservat
                 fromDate.setMinutes(parseInt(complete[1]));
               }}
               defaultValue=
-              {`${nowDate.getHours().toString().padStart(2, "0")}:${nowDate.getMinutes().toString().padStart(2, "0")}`} />
+              {`${new Date().getHours().toString().padStart(2, "0")}:${new Date().getMinutes().toString().padStart(2, "0")}`} />
           </div>
           <div className="to">
             <input className="todate" type="date"
