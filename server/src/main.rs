@@ -327,6 +327,7 @@ async fn cancel_lease(data: Json<Lease>) -> Result<(Status, &'static str)> {
 async fn end_lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<(Status, &'static str)> {
     if let (None, Some(end)) = (data.start, data.end) {
         let start;
+        let user;
         {
             let mut val = CAMERAS.lock().unwrap();
             let camera = match val.get_mut(&data.uid) {
@@ -335,6 +336,7 @@ async fn end_lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<(Status,
             };
             if let Some(x) = &(*camera).distribution {
                 start = x.0;
+                user = x.1.clone();
             } else {
                 return Ok((Status::Conflict, "Can't stop lease that hasn't started"));
             }
@@ -346,7 +348,7 @@ async fn end_lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<(Status,
             uid,
             start,
             end,
-            data.user
+            user
         )
         .fetch(&mut **db)
         .try_collect::<Vec<_>>()
