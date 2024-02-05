@@ -208,26 +208,27 @@ struct Lease {
     start: Option<u32>,
     end: Option<u32>,
     uid: u32,
-    user: String,
+    user: Option<String>,
 }
 
 #[post("/lease", data = "<data>")]
-async fn lease(
-    mut db: Connection<Db>,
-    data: Json<Lease>,
-) -> Result<(Status, Option<&'static str>)> {
+async fn lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<(Status, &'static str)> {
+    let user = match &data.user {
+        Some(x) => x,
+        None => return Ok(((Status::UnprocessableEntity), "Name required")),
+    };
     if !Regex::new("^[\\w\\s\\-]*$")
         .unwrap()
-        .is_match(data.user.as_str())
+        .is_match(user.as_str())
     {
-        return Ok((Status::BadRequest, Some("Leased name doesn't match regex.")));
+        return Ok((Status::BadRequest, "Leased name doesn't match regex."));
     }
 
     if let (Some(start), Some(end)) = (data.start, data.end) {
         {
             let mut val = CAMERAS.lock().unwrap();
             let camera = match val.get_mut(&data.uid) {
-                None => return Ok((Status::BadRequest, Some("Uid out of bounds"))),
+                None => return Ok((Status::BadRequest, "Uid out of bounds")),
                 Some(x) => x,
             };
             camera.distribution = None;
@@ -238,25 +239,26 @@ async fn lease(
             uid,
             start,
             end,
-            data.user
+            user
         )
         .fetch(&mut **db)
         .try_collect::<Vec<_>>()
         .await?;
-        Ok((Status::Accepted, Some("Accepted")))
+        Ok((Status::Accepted, "Accepted"))
     } else {
-        return Ok((
-            Status::BadRequest,
-            Some("You need to supply both start and end"),
-        ));
+        return Ok((Status::BadRequest, "You need to supply both start and end"));
     }
 }
 
 #[post("/lease/start", data = "<data>")]
 async fn start_lease(data: Json<Lease>) -> Result<(Status, &'static str)> {
+    let user = match &data.user {
+        Some(x) => x,
+        None => return Ok(((Status::UnprocessableEntity), "Name required")),
+    };
     if !Regex::new("^[\\w\\s\\-]*$")
         .unwrap()
-        .is_match(data.user.as_str())
+        .is_match(user.as_str())
     {
         return Ok((Status::BadRequest, "Leased name doesn't match regex."));
     }
@@ -270,7 +272,7 @@ async fn start_lease(data: Json<Lease>) -> Result<(Status, &'static str)> {
         if (*camera).distribution.is_some() {
             return Ok((Status::Conflict, "Camera already leased"));
         }
-        camera.distribution = Some((start, data.user.clone()));
+        camera.distribution = Some((start, user.clone()));
         Ok((Status::Accepted, "Accepted"))
     } else {
         return Ok((Status::BadRequest, "You need to supply start, but not end"));
@@ -279,9 +281,13 @@ async fn start_lease(data: Json<Lease>) -> Result<(Status, &'static str)> {
 
 #[post("/lease/cancel", data = "<data>")]
 async fn cancel_lease(data: Json<Lease>) -> Result<(Status, &'static str)> {
+    let user = match &data.user {
+        Some(x) => x,
+        None => return Ok(((Status::UnprocessableEntity), "Name required")),
+    };
     if !Regex::new("^[\\w\\s\\-]*$")
         .unwrap()
-        .is_match(data.user.as_str())
+        .is_match(user.as_str())
     {
         return Ok((Status::BadRequest, "Leased name doesn't match regex."));
     }
@@ -298,16 +304,10 @@ async fn cancel_lease(data: Json<Lease>) -> Result<(Status, &'static str)> {
                 .duration_since(SystemTime::UNIX_EPOCH + Duration::from_secs(x.0 as u64));
             if let Ok(x) = duration {
                 if x.as_secs() > timeout {
-                    return Ok((
-                        Status::Conflict,
-                        "Time expiration surpassed",
-                    ));
+                    return Ok((Status::Conflict, "Time expiration surpassed"));
                 }
             } else {
-                    return Ok((
-                        Status::BadRequest,
-                        "Lease in future",
-                    ));
+                return Ok((Status::BadRequest, "Lease in future"));
             }
         } else {
             return Ok((
@@ -325,13 +325,6 @@ async fn cancel_lease(data: Json<Lease>) -> Result<(Status, &'static str)> {
 
 #[post("/lease/end", data = "<data>")]
 async fn end_lease(mut db: Connection<Db>, data: Json<Lease>) -> Result<(Status, &'static str)> {
-    if !Regex::new("^[\\w\\s\\-]*$")
-        .unwrap()
-        .is_match(data.user.as_str())
-    {
-        return Ok((Status::BadRequest, "Leased name doesn't match regex."));
-    }
-
     if let (None, Some(end)) = (data.start, data.end) {
         let start;
         {
