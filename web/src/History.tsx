@@ -43,20 +43,10 @@ export function HistoryPage() {
       );
     });
   }, [loading, cams]);
-  const [tab, setTab] = useState(1);
-  return (
-    <HistoryList camid={tab} cams={cams} />
-  )
 
-  function changeTab(newtab: number) {
-    document.getElementById(`${tab}`)?.classList.remove("selected");
-    if (tab === newtab) {
-      setTab(-1);
-    } else {
-      setTab(newtab);
-      document.getElementById(`${newtab}`)?.classList.add("selected");
-    }
-  }
+  return (
+    <HistoryList cams={cams} />
+  );
 }
 
 function HistoryCard({ entries, cam }: { entries: leaseType[], cam: camsType }) {
@@ -120,7 +110,7 @@ function HistoryCard({ entries, cam }: { entries: leaseType[], cam: camsType }) 
   }
 }
 
-function HistoryList({ camid, cams }: { camid: number, cams: camsType[] }) {
+function HistoryList({ cams }: { cams: camsType[] }) {
   const [dates, setDates] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<number>(0);
@@ -202,8 +192,7 @@ function HistoryList({ camid, cams }: { camid: number, cams: camsType[] }) {
         {
           cams.map(f => (
             <li title={f.model} id={`equipmentSelection${f.uid}`} className="active" onClick={() => updateShown(f.uid)}>{f.name}</li>
-          )
-          )
+          ))
         }
       </ol>
     )
