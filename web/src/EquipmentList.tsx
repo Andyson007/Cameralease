@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import CameraCard from "./CameraCard";
+import EquipmentCard from "./EquipmentCard";
 import LoadingScreen from "./LoadingScreen";
 
-// var cameras = [
+// var Equipments = [
 //   {
 //     name: "blahblah",
 //     model: "lsakjdf",
@@ -19,7 +19,7 @@ import LoadingScreen from "./LoadingScreen";
 
 export type camsType = { name: string, model: string, uid: number, reservations: { start: number, end: number, user: string }[], starttime: number | undefined, user: string | undefined }
 
-export function CameraList({ alertBox, promptBox }: { alertBox: (title: string, body: string) => void; promptBox: (title: string, body: string, answers: string[]) => Promise<string> }) {
+export function EquipmentList({ alertBox, promptBox }: { alertBox: (title: string, body: string) => void; promptBox: (title: string, body: string, answers: string[]) => Promise<string> }) {
 
   const [cams, setCams] = useState<camsType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -61,7 +61,7 @@ export function CameraList({ alertBox, promptBox }: { alertBox: (title: string, 
   return (
     <div className="cardlist">
       {/*error === 0 ? */ (error ? <LoadingScreen /> : cams.map(f => {
-        return (<CameraCard key={f.uid} reload={() => setReload(true)} name={f.name} model={f.model} uid={f.uid} reservations={f.reservations} user={f.user || null} starttime={f.starttime || null} alertBox={alertBox} promptBox={promptBox} />)
+        return (<EquipmentCard key={f.uid} reload={() => setReload(true)} name={f.name} model={f.model} uid={f.uid} reservations={f.reservations} user={f.user || null} starttime={f.starttime || null} alertBox={alertBox} promptBox={promptBox} />)
       })) /*: `error: ${error}`*/}
     </div>
   );

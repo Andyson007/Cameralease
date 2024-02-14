@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CameraList } from "./CameraList";
+import { EquipmentList } from "./EquipmentList";
 import MessageBox from "./MessageBox";
 
 
@@ -37,7 +37,7 @@ export default function MainPage () {
   return (
     <>
       <MessageBox title={boxTitle} body={boxBody} shown={boxShown} options={boxOptions} hide={(choice: string | null)=>{ setBoxShown(false); setBoxChoice(choice); }} />
-      <CameraList alertBox={showMessageBox} promptBox={promptMessageBox} />
+      <EquipmentList alertBox={showMessageBox} promptBox={promptMessageBox} />
     </>
   );
 }

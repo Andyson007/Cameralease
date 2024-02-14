@@ -7,7 +7,7 @@ export default function Header() {
     <div className="outerheader">
       <header>
         <Logo />
-        <h1>Utlån av kamera - Kuben IM</h1>
+        <h1>Utlån av utstyr - Kuben IM</h1>
       </header>
       <nav>
         <Link className="linkbtn" to="/">Oversikt</Link>

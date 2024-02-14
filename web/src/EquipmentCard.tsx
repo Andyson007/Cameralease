@@ -1,8 +1,8 @@
 import { useEffect, useReducer, useState } from "react";
-import "./CameraCard.scss";
+import "./EquipmentCard.scss";
 import TimeLine from "./TimeLine";
 
-export default function CameraCard({ name, model, uid, user, starttime, reservations, reload, alertBox, promptBox }: { name: string, model: string, uid: number, user: string | null, starttime: number | null, reservations: { start: number, end: number, user: string }[], reload: () => void, alertBox: (title: string, body: string) => void; promptBox: (title: string, body: string, answers: string[]) => Promise<string> }) {
+export default function EquipmentCard({ name, model, uid, user, starttime, reservations, reload, alertBox, promptBox }: { name: string, model: string, uid: number, user: string | null, starttime: number | null, reservations: { start: number, end: number, user: string }[], reload: () => void, alertBox: (title: string, body: string) => void; promptBox: (title: string, body: string, answers: string[]) => Promise<string> }) {
   const [ddopen, setDDOpen] = useState(false);
   const [progress, setProgress] = useState(0);
   const [fromDate] = useState(new Date());
@@ -101,7 +101,7 @@ export default function CameraCard({ name, model, uid, user, starttime, reservat
     }
   }, [starttime, reservations, Math.floor(new Date().getTime() / 6000)]);
   return (
-    <div className={`cameracard ${state === 0 ? "available" : state === 1 ? "unavailable" : "reserved"}`}>
+    <div className={`equipmentcard ${state === 0 ? "available" : state === 1 ? "unavailable" : "reserved"}`}>
       <div className="notdropdown" onClick={revealDropDown}>
         <div className="camcardleft"></div>
         <div className="camcardright">
@@ -167,7 +167,7 @@ export default function CameraCard({ name, model, uid, user, starttime, reservat
           <button className="dropdownbtn reserve" onClick={reserveOrLease}>{starttime ? "Avbryt reservasjon" : "Reserver"}</button>
           <button className="dropdownbtn lease" onClick={stopStartLease}>{starttime ? "Stopp utlån" : "lån ut"}</button>
         </div>
-        {/* DEBUG (Database camera ID) */}
+        {/* DEBUG (Database Equipment ID) */}
         <span className="grayitalics">{uid}</span>
       </div>
     </div>

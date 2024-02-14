@@ -158,7 +158,7 @@ function HistoryList({ camid, cams }: { camid: number, cams: camsType[] }) {
   cams = JSON.parse('[{"name":"Name_sample2","model":"model_sample2","uid":2,"reservations":[]},{"name":"Name_samp0","model":"model_samp0","uid":0,"reservations":[]},{"name":"Name_sample1","model":"model_sample1","uid":1,"reservations":[]}]');
 
   function updateShown(uid: number) {
-    const item = document.getElementById(`cameraSelection${uid}`);
+    const item = document.getElementById(`EquipmentSelection${uid}`);
     if (item?.classList.contains("active")) {
       item.classList.add("inactive")
       item.classList.remove("active")
@@ -179,7 +179,7 @@ function HistoryList({ camid, cams }: { camid: number, cams: camsType[] }) {
 
   return (
     <div className="split">
-      <CameraList cams={cams} />
+      <EquipmentList cams={cams} />
       <div className="cardlist historylist">
         {
           dates.map(f => {
@@ -195,13 +195,13 @@ function HistoryList({ camid, cams }: { camid: number, cams: camsType[] }) {
     </div>
   )
 
-  function CameraList({ cams }: { cams: camsType[] }) {
+  function EquipmentList({ cams }: { cams: camsType[] }) {
     cams.sort((a: camsType, b: camsType) => a.name.localeCompare(b.name));
     return (
-      <ol className="cameraSelection">
+      <ol className="equipmentSelection">
         {
           cams.map(f => (
-            <li title={f.model} id={`cameraSelection${f.uid}`} className="active" onClick={() => updateShown(f.uid)}>{f.name}</li>
+            <li title={f.model} id={`equipmentSelection${f.uid}`} className="active" onClick={() => updateShown(f.uid)}>{f.name}</li>
           )
           )
         }
